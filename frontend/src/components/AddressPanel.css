@@ -1,0 +1,382 @@
+/* src/components/AddressPanel.css */
+
+.address-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(3px);
+}
+
+.address-panel {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.address-panel.open {
+  right: 0;
+}
+
+.address-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 25px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+
+.address-panel-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.close-panel {
+  background: #f5f5f5;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  transition: all 0.2s;
+}
+
+.close-panel:hover {
+  background: #eee;
+  color: #e23744;
+  transform: rotate(90deg);
+}
+
+.address-panel-content {
+  padding: 25px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.address-message {
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.address-message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #4caf50;
+}
+
+.address-message.success:before {
+  content: "✓";
+  background-color: #4caf50;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+.address-message.error {
+  background-color: #fdecea;
+  color: #c62828;
+  border-left: 4px solid #ef5350;
+}
+
+.address-message.error:before {
+  content: "!";
+  background-color: #ef5350;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.address-tabs {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 25px;
+}
+
+.address-tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #666;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.address-tab.active {
+  color: #e23744;
+  font-weight: 500;
+}
+
+.address-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 25%;
+  width: 50%;
+  height: 3px;
+  background-color: #e23744;
+  border-radius: 3px;
+}
+
+.address-tab-icon {
+  font-size: 20px;
+  color: inherit;
+}
+
+.saved-address {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  transition: all 0.2s;
+}
+
+.saved-address:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.saved-address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.saved-address-header h4 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.saved-address-header h4 svg {
+  color: #e23744;
+}
+
+.saved-address-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-address-btn,
+.delete-address-btn {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.edit-address-btn {
+  color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.edit-address-btn:hover {
+  background-color: rgba(33, 150, 243, 0.2);
+  transform: scale(1.1);
+}
+
+.delete-address-btn {
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.delete-address-btn:hover {
+  background-color: rgba(244, 67, 54, 0.2);
+  transform: scale(1.1);
+}
+
+.address-text {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.landmark-text {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+}
+
+.address-edit-form,
+.add-new-address {
+  animation: fadeIn 0.3s ease;
+}
+
+.address-form-group {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.address-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 14px; /* Fixed position for textarea */
+  color: #e23744;
+  font-size: 18px;
+}
+
+.address-textarea {
+  width: 100%;
+  padding: 14px 14px 14px 45px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.25s;
+  background-color: #fff;
+  color: #333;
+  resize: none;
+  font-family: inherit;
+}
+
+.address-input {
+  width: 100%;
+  height: 52px; /* Consistent height */
+  padding: 0 14px 0 45px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.25s;
+  background-color: #fff;
+  color: #333;
+}
+
+.address-textarea:focus,
+.address-input:focus {
+  border-color: #e23744;
+  box-shadow: 0 0 0 3px rgba(226, 55, 68, 0.1);
+  outline: none;
+}
+
+.address-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.save-address-btn {
+  flex: 1;
+  background-color: #e23744;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 10px rgba(226, 55, 68, 0.2);
+}
+
+.save-address-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(226, 55, 68, 0.3);
+}
+
+.save-address-btn:disabled {
+  background-color: #f5a4b3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cancel-edit-btn {
+  background-color: #f5f5f5;
+  color: #555;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.cancel-edit-btn:hover {
+  background-color: #e8e8e8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .address-panel {
+    width: 100%;
+    right: -100%;
+  }
+  
+  .address-panel-header {
+    padding: 18px 20px;
+  }
+  
+  .address-panel-content {
+    padding: 20px;
+  }
+  
+  .address-actions {
+    flex-direction: column;
+  }
+}

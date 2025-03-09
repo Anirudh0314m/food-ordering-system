@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Main container covering 90% of page width */
+.rd-container {
+  width: 900%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 25px 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Header with back button */
+.rd-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.rd-back-button {
+  background-color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.rd-back-button:hover {
+  transform: translateX(-3px);
+  background-color: #f8f8f8;
+}
+
+.rd-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Loading state */
+.rd-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.rd-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #e23744;
+  border-radius: 50%;
+  animation: rd-spin 1s linear infinite;
+}
+
+@keyframes rd-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rd-container {
+    width: 95%;
+    padding: 20px 0;
+  }
+  
+  .rd-title {
+    font-size: 1.7rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .rd-container {
+    width: 95%;
+    padding: 15px 0;
+  }
+}
