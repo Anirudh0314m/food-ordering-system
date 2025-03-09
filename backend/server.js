@@ -14,7 +14,12 @@ const menuItemRoutes = require("./routes/menuItems"); // Changed to match file n
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['https://food-ordering-system-beige.vercel.app', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // MongoDB Connection
