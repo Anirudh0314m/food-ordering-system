@@ -7,7 +7,7 @@ import "../styles/Login.css";
 // Remove the mock loginUser function and replace with the real API call
 const loginUser = async (email, password) => {
   try {
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
+    const response = await axios.post('https://food-ordering-system-tge0.onrender.com/api/auth/login', {
       email,
       password
     });
