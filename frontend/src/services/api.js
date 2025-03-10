@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api"; // Base URL
+const API_URL = process.env.REACT_APP_API_URL || "https://food-ordering-system-backend-39i4.onrender.com"; // Base URL
 
 export const loginUser = async (email, password) => {
   try {
