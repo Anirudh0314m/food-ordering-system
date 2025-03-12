@@ -1,0 +1,316 @@
+/* Enhanced AccountPanel.css */
+
+.account-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(3px);
+}
+
+.account-panel {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.account-panel.open {
+  right: 0;
+}
+
+.account-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 25px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+
+.account-panel-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.close-panel {
+  background: #f5f5f5;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  transition: all 0.2s;
+}
+
+.close-panel:hover {
+  background: #eee;
+  color: #e23744;
+  transform: rotate(90deg);
+}
+
+.account-panel-content {
+  padding: 25px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.account-message {
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.account-message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #4caf50;
+}
+
+.account-message.success:before {
+  content: "✓";
+  background-color: #4caf50;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+.account-message.error {
+  background-color: #fdecea;
+  color: #c62828;
+  border-left: 4px solid #ef5350;
+}
+
+.account-message.error:before {
+  content: "!";
+  background-color: #ef5350;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Fix icon and input alignment */
+.account-form-group {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.account-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 17px; /* Fixed position instead of percentage */
+  color: #e23744;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.account-input-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.account-input {
+  width: 100%;
+  height: 52px; /* Consistent height */
+  padding: 0 14px 0 45px; /* Left padding to make room for icon */
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.25s;
+  background-color: #fff;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.account-input:focus {
+  border-color: #e23744;
+  box-shadow: 0 0 0 3px rgba(226, 55, 68, 0.1);
+  outline: none;
+}
+
+.account-input.disabled {
+  background-color: #f9f9f9;
+  color: #555;
+  border: 1px solid #e8e8e8;
+}
+
+small {
+  display: block;
+  margin-top: 6px;
+  color: #777;
+  font-size: 12px;
+  padding-left: 10px;
+}
+
+.account-form-section {
+  margin-top: 15px;
+  padding-top: 10px;
+}
+
+.account-form-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+}
+
+.account-form-section h4 svg {
+  color: #e23744;
+}
+
+.favorites-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: 5px;
+}
+
+.favorite-item {
+  background-color: #f5f5f5;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.favorite-item:hover {
+  background-color: #f0f0f0;
+  border-color: #ddd;
+  transform: translateY(-2px);
+}
+
+.no-favorites {
+  color: #777;
+  font-style: italic;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.save-profile-btn {
+  background-color: #e23744;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 10px rgba(226, 55, 68, 0.2);
+}
+
+.save-profile-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(226, 55, 68, 0.3);
+}
+
+.save-profile-btn:active {
+  transform: translateY(0);
+}
+
+.save-profile-btn:disabled {
+  background-color: #f5a4b3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(50px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Apply animation to form elements */
+.account-form > * {
+  animation: slideIn 0.3s ease forwards;
+  opacity: 0;
+}
+
+.account-form > *:nth-child(1) { animation-delay: 0.1s; }
+.account-form > *:nth-child(2) { animation-delay: 0.2s; }
+.account-form > *:nth-child(3) { animation-delay: 0.3s; }
+.account-form > *:nth-child(4) { animation-delay: 0.4s; }
+.account-form > *:nth-child(5) { animation-delay: 0.5s; }
+
+@media (max-width: 480px) {
+  .account-panel {
+    width: 100%;
+    right: -100%;
+  }
+  
+  .account-panel-header {
+    padding: 18px 20px;
+  }
+  
+  .account-panel-content {
+    padding: 20px;
+  }
+}
