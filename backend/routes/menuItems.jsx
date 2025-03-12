@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const MenuItem = require('../models/MenuItem');
+const MenuItem = require('../models/MenuItem.jsx');
 
 // Get all menu items by restaurant ID
 router.get('/menu-items/restaurant/:restaurantId', async (req, res) => {

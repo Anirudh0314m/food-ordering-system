@@ -4,13 +4,13 @@ const mongoose = require("mongoose");
 const cors = require('cors');
 const fs = require('fs');
 
-const authRoutes = require("./routes/authRoutes");
-const authMiddleware = require("./middleware/authMiddleware");
-const restaurantRoutes = require('./routes/restaurantRoutes');
-const cartRoutes = require("./routes/cartRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const paymentRoutes = require("./routes/paymentRoutes");
-const menuItemRoutes = require("./routes/menuItems"); // Changed to match file name
+const authRoutes = require("./routes/authRoutes.jsx");
+const authMiddleware = require("./middleware/authMiddleware.jsx");
+const restaurantRoutes = require('./routes/restaurantRoutes.jsx');
+const cartRoutes = require("./routes/cartRoutes.jsx");
+const orderRoutes = require("./routes/orderRoutes.jsx");
+const paymentRoutes = require("./routes/paymentRoutes.jsx");
+const menuItemRoutes = require("./routes/menuItems.jsx"); // Changed to match file name
 
 const app = express();
 

@@ -22,7 +22,7 @@ exports.authenticateAdmin = (req, res, next) => {
 // Routes.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user');
+const User = require('../models/user.jsx');
 
 // Get all users
 router.get('/users', async (req, res) => {
