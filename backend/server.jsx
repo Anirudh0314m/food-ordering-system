@@ -11,6 +11,7 @@ const cartRoutes = require("./routes/cartRoutes.jsx");
 const orderRoutes = require("./routes/orderRoutes.jsx");
 const paymentRoutes = require("./routes/paymentRoutes.jsx");
 const menuItemRoutes = require("./routes/menuItems.jsx"); // Changed to match file name
+const dialogflowRouter = require('./routes/dialogFlow');
 
 const app = express();
 
@@ -49,6 +50,7 @@ if (!fs.existsSync('uploads')) {
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use('/api/dialogflow', dialogflowRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
