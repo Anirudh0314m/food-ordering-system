@@ -181,12 +181,4 @@ Feel free to explore the code and customize it to fit your needs. Happy coding!
 ---
 
 
-# Login page 
-![image](https://github.com/user-attachments/assets/254078b2-e6d1-4628-9bf6-2c874f2c2a10)
-# Dashboard page
-![image](https://github.com/user-attachments/assets/f230ac3a-587d-42f8-96b7-ad3c797199a1)
-# Restaurants page in dashboard
-![image](https://github.com/user-attachments/assets/e1ce4f57-cadd-410a-b6b6-20efc3c19dd9)
-
-
 
