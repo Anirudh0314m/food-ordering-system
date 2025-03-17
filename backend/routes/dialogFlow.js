@@ -4,6 +4,7 @@ const dialogflow = require('@google-cloud/dialogflow');
 const uuid = require('uuid');
 const path = require('path');
 const fs = require('fs');
+require('dotenv').config();
 
 // Store credentials in a secure location
 process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(__dirname, '../../key.json');
