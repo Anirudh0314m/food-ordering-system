@@ -10,6 +10,7 @@ import "./Dashboard.css";
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 
+
 const defaultCenter = {
   lat: 12.9716,
   lng: 77.5946

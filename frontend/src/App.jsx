@@ -11,7 +11,10 @@ import CartPage from './pages/CartPage';
 import PaymentPage from './pages/PaymentPage';
 import OrdersPage from './pages/OrdersPage';
 import "./styles.css";
-import CartProvider from './context/CartContext';
+
+import { RestaurantProvider } from './context/RestaurantContext';
+import { CartProvider } from './context/CartContext';
+import ChatBot from './components/ChatBot';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -78,60 +81,65 @@ const App = () => {
 
   return (
     <CartProvider>
-      <Router>
-        {!loading && (
-          <Routes>
-            <Route 
-              path="/" 
-              element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
-            />
-            <Route 
-              path="/login" 
-              element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
-            />
-            <Route 
-              path="/register" 
-              element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register setIsAuthenticated={setIsAuthenticated} />} 
-            />
-            <Route 
-              path="/dashboard" 
-              element={isAuthenticated ? <Dashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/admin" 
-              element={isAuthenticated ? <AdminDashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/restaurants/category/:id" 
-              element={isAuthenticated ? <RestaurantsByCategory handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/restaurants/:id" 
-              element={isAuthenticated ? <RestaurantDetails handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/cart" 
-              element={isAuthenticated ? <CartPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/payment" 
-              element={isAuthenticated ? <PaymentPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/orders" 
-              element={
-                <ProtectedRoute>
-                  <OrdersPage handleLogout={handleLogout} />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="*" 
-              element={<Navigate to="/" replace />} 
-            />
-          </Routes>
-        )}
-      </Router>
+      <RestaurantProvider>
+        <Router>
+          <div className="App">
+            {!loading && (
+              <Routes>
+                <Route 
+                  path="/" 
+                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
+                />
+                <Route 
+                  path="/login" 
+                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
+                />
+                <Route 
+                  path="/register" 
+                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register setIsAuthenticated={setIsAuthenticated} />} 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={isAuthenticated ? <Dashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/admin" 
+                  element={isAuthenticated ? <AdminDashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/restaurants/category/:id" 
+                  element={isAuthenticated ? <RestaurantsByCategory handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/restaurants/:id" 
+                  element={isAuthenticated ? <RestaurantDetails handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/cart" 
+                  element={isAuthenticated ? <CartPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/payment" 
+                  element={isAuthenticated ? <PaymentPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/orders" 
+                  element={
+                    <ProtectedRoute>
+                      <OrdersPage handleLogout={handleLogout} />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="*" 
+                  element={<Navigate to="/" replace />} 
+                />
+              </Routes>
+            )}
+            <ChatBot /> {/* Make sure this is here */}
+          </div>
+        </Router>
+      </RestaurantProvider>
     </CartProvider>
   );
 };
