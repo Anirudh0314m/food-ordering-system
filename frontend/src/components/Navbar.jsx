@@ -97,8 +97,8 @@ const Navbar = ({ address, setIsMapOpen, handleLogout }) => {
     <>
       <nav className="navbar">
         <div className="navbar-left">
-          <FaBars className="menu-icon" />
-          <span className="logo" onClick={() => navigate('/dashboard')}>FREE FOOD.</span>
+          
+          <span className="logo" onClick={() => navigate('/dashboard')}>QuickBite</span>
           <div className="address-container">
             <FaMapMarkerAlt className="location-icon" />
             <span className="address-text">{address}</span>

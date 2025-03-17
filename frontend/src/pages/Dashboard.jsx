@@ -577,12 +577,7 @@ const Dashboard = ({ handleLogout }) => {
         </div>
       )}
 
-      {/* Promo Section */}
-      <div className="promo-section">
-        <p>What about privacy policy?</p>
-        <p>This is simply dummy text of the printing and typesetting industry. Learn more about how we handle data privacy.</p>
-        <a href="#">See more</a>
-      </div>
+      
 
       {/* Restaurant Menu Side Panel */}
       <div className={`restaurant-menu side-panel ${activeMenu.isOpen ? 'open' : ''}`}>
