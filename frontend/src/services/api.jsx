@@ -60,3 +60,73 @@ export const deleteMenuItem = async (menuItemId) => {
     throw error.response?.data?.message || "Failed to delete menu item";
   }
 };
+
+// Add these new methods to your api.jsx file
+
+// Get stock dashboard statistics
+export const getStockDashboard = async () => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await axios.get(`${API_URL}/stock/dashboard`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching stock dashboard:", error);
+    throw error.response?.data?.message || "Failed to fetch stock dashboard";
+  }
+};
+
+// Get stock items for a restaurant
+export const getStockByRestaurant = async (restaurantId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await axios.get(`${API_URL}/stock/restaurant/${restaurantId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching stock items:", error);
+    throw error.response?.data?.message || "Failed to fetch stock items";
+  }
+};
+
+// Update stock quantity
+export const updateStockQuantity = async (itemId, newQuantity, notes) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await axios.put(
+      `${API_URL}/stock/item/${itemId}`, 
+      { newQuantity, notes },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating stock:", error);
+    throw error.response?.data?.message || "Failed to update stock";
+  }
+};
+
+// Get stock history for an item
+export const getStockHistory = async (itemId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await axios.get(`${API_URL}/stock/history/${itemId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching stock history:", error);
+    throw error.response?.data?.message || "Failed to fetch stock history";
+  }
+};

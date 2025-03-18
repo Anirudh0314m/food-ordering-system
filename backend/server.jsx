@@ -1,8 +1,14 @@
+require('@babel/register')({
+  presets: ['@babel/preset-env', '@babel/preset-react'],
+  extensions: ['.jsx', '.js']
+});
+
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require('cors');
 const fs = require('fs');
+
 
 const authRoutes = require("./routes/authRoutes.jsx");
 const authMiddleware = require("./middleware/authMiddleware.jsx");
@@ -23,9 +29,18 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 // MongoDB Connection
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/food-delivery', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Failed:", err));
 
@@ -52,12 +67,23 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use('/api/dialogflow', dialogflowRouter);
 // Add this line with your other routes
-app.use('/api/stock', require('./routes/stockRoutes'));
+app.use('/api/stock', require('./routes/stockRoutes.jsx'));
+
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working' });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error('Server error:', err);
+  res.status(500).json({ message: 'Server error', error: err.message });
+});
+
+// 404 handler
+app.use((req, res) => {
+  console.log(`Route not found: ${req.method} ${req.url}`);
+  res.status(404).json({ message: 'Route not found' });
 });
 
 // Start the Server

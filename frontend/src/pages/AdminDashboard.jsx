@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaUtensils, FaList, FaUsers, FaSignOutAlt, FaTrash, FaPlus, FaEdit, FaArrowLeft, FaStore, FaCheckCircle, FaMotorcycle, FaHome, FaSearch, FaCheck, FaTimes, FaHourglassHalf, FaUserEdit } from 'react-icons/fa';
+import { FaUtensils, FaList, FaUsers, FaSignOutAlt, FaTrash, FaPlus, FaEdit, FaArrowLeft, FaStore, FaCheckCircle, FaMotorcycle, FaHome, FaSearch, FaCheck, FaTimes, FaHourglassHalf, FaUserEdit,FaBoxOpen ,FaWarehouse,FaSync} from 'react-icons/fa';
 import { categories } from '../constants/categories';
 import './AdminDashboard.css';
 import { addMenuItem, updateMenuItem, deleteMenuItem } from '../services/api';
@@ -62,6 +62,22 @@ const AdminDashboard = ({ handleLogout }) => {
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState('');
 
+
+  // Add these state variables after your existing state declarations
+const [stockItems, setStockItems] = useState([]);
+const [stockHistory, setStockHistory] = useState([]);
+const [stockManagementRestaurant, setStockManagementRestaurant] = useState(null);
+const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+const [stockQuantity, setStockQuantity] = useState(0);
+const [stockNote, setStockNote] = useState('');
+const [stockFilter, setStockFilter] = useState('all');
+const [stockDashboard, setStockDashboard] = useState({
+  outOfStockCount: 0,
+  lowStockCount: 0,
+  healthyStockCount: 0,
+  totalItems: 0
+});
+const [stockDashboardLoading, setStockDashboardLoading] = useState(false);
   useEffect(() => {
     fetchRestaurants();
     loadUsers(); // Use loadUsers instead of fetchUsers
@@ -102,6 +118,13 @@ const AdminDashboard = ({ handleLogout }) => {
       loadUsers();
     }
   }, [activeTab]);
+
+// Add this useEffect hook with your other hooks
+useEffect(() => {
+  if (activeSection === 'stockManagement' && !stockManagementRestaurant) {
+    fetchStockDashboard();
+  }
+}, [activeSection, stockManagementRestaurant]);
 
   const fetchRestaurants = async () => {
     try {
@@ -734,6 +757,150 @@ const AdminDashboard = ({ handleLogout }) => {
     }
   };
 
+  // Add these functions before the return statement
+const fetchStockDashboard = async () => {
+  try {
+    setStockDashboardLoading(true);
+    // Calculate from existing menu items
+    const allItems = [];
+    
+    // Get items for all restaurants
+    for (const restaurant of restaurants) {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/menu-items/restaurant/${restaurant._id}`);
+        if (Array.isArray(response.data)) {
+          allItems.push(...response.data);
+        }
+      } catch (err) {
+        console.log(`Couldn't load items for ${restaurant.name}`);
+      }
+    }
+    
+    // Calculate statistics
+    const outOfStock = allItems.filter(item => item.stockQuantity === 0).length;
+    const lowStock = allItems.filter(item => 
+      item.stockQuantity > 0 && 
+      item.stockQuantity <= (item.lowStockThreshold || 5)
+    ).length;
+    const healthy = allItems.filter(item => 
+      item.stockQuantity > (item.lowStockThreshold || 5)
+    ).length;
+    
+    setStockDashboard({
+      outOfStockCount: outOfStock,
+      lowStockCount: lowStock,
+      healthyStockCount: healthy,
+      totalItems: allItems.length
+    });
+  } catch (error) {
+    console.error("Failed to calculate stock dashboard:", error);
+    // Set default values on error
+    setStockDashboard({
+      outOfStockCount: 0,
+      lowStockCount: 0,
+      healthyStockCount: 0,
+      totalItems: 0
+    });
+  } finally {
+    setStockDashboardLoading(false);
+  }
+};
+
+const fetchStockItems = async (restaurantId) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/menu-items/restaurant/${restaurantId}`);
+    if (Array.isArray(response.data)) {
+      setStockItems(response.data);
+    } else {
+      setStockItems([]);
+    }
+  } catch (error) {
+    console.error("Error fetching stock items:", error);
+    setStockItems([]);
+    alert('Failed to load stock information. Please try again.');
+  }
+};
+
+const fetchStockHistory = async (itemId) => {
+  try {
+    // If you have a stock history API endpoint, use it here
+    // For now, we'll just set an empty array
+    setStockHistory([]);
+  } catch (error) {
+    console.error("Error fetching stock history:", error);
+    setStockHistory([]);
+  }
+};
+
+const updateStockQuantity = async (itemId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    
+    // Update the stock quantity
+    await axios.put(
+      `http://localhost:5000/api/stock/item/${itemId}`,
+      { 
+        newQuantity: stockQuantity,
+        notes: stockNote 
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    // Update local state
+    setStockItems(stockItems.map(item => {
+      if (item._id === itemId) {
+        return {
+          ...item,
+          stockQuantity: stockQuantity,
+          isAvailable: stockQuantity > 0
+        };
+      }
+      return item;
+    }));
+    
+    // Reset form
+    setStockNote('');
+    setSelectedMenuItem(null);
+    
+    // Success message
+    alert('Stock updated successfully!');
+    
+    // Update dashboard data
+    fetchStockDashboard();
+  } catch (error) {
+    console.error("Error updating stock:", error);
+    alert(`Failed to update stock: ${error.response?.data?.message || error.message}`);
+  }
+};
+
+const getFilteredStockItems = () => {
+  if (stockFilter === 'all') return stockItems;
+  if (stockFilter === 'outOfStock') return stockItems.filter(item => item.stockQuantity === 0);
+  if (stockFilter === 'lowStock') return stockItems.filter(item => 
+    item.stockQuantity > 0 && item.stockQuantity <= (item.lowStockThreshold || 5)
+  );
+  if (stockFilter === 'healthy') return stockItems.filter(item => 
+    item.stockQuantity > (item.lowStockThreshold || 5)
+  );
+  return stockItems;
+};
+
+const handleStockManagementRestaurantSelect = (restaurant) => {
+  setStockManagementRestaurant(restaurant);
+  fetchStockItems(restaurant._id);
+};
+
+const handleBackToStockDashboard = () => {
+  setStockManagementRestaurant(null);
+  setSelectedMenuItem(null);
+  fetchStockDashboard(); // Refresh dashboard data
+};
+
   return (
     <div className="admin-dashboard">
       <div className="admin-sidebar">
@@ -774,6 +941,12 @@ const AdminDashboard = ({ handleLogout }) => {
             onClick={() => setActiveSection('orders')}
           >
             <FaList /> Orders
+          </button>
+          <button 
+            className={`nav-btn ${activeSection === 'stockManagement' ? 'active' : ''}`}
+            onClick={() => setActiveSection('stockManagement')}
+          >
+            <FaBoxOpen /> Stock Management
           </button>
           <button 
             className="nav-btn logout-btn"
@@ -1429,6 +1602,249 @@ const AdminDashboard = ({ handleLogout }) => {
             )}
           </section>
         )}
+
+        {/* Add this section to your main content area, before the final closing div */}
+{activeSection === 'stockManagement' && (
+  <section className="stock-management-section">
+    <h2>Stock Management</h2>
+    {!stockManagementRestaurant ? (
+      <>
+        <div className="stock-dashboard-header">
+          <h3>Stock Overview</h3>
+          <button 
+            className="refresh-btn"
+            onClick={fetchStockDashboard}
+            disabled={stockDashboardLoading}
+          >
+            <FaSync className={stockDashboardLoading ? 'spinning' : ''} /> 
+            {stockDashboardLoading ? 'Refreshing...' : 'Refresh Data'}
+          </button>
+        </div>
+        
+        <div className="stock-dashboard">
+          {stockDashboardLoading ? (
+            <div className="loading-spinner">Loading stock data...</div>
+          ) : (
+            <>
+              <div className="stock-stat-card">
+                <div className="stock-stat-icon out">
+                  <FaTimes />
+                </div>
+                <div className="stock-stat-details">
+                  <h3>Out of Stock</h3>
+                  <p className="stock-stat-value">{stockDashboard.outOfStockCount}</p>
+                  <p className="stock-stat-desc">Items need attention</p>
+                </div>
+              </div>
+              
+              <div className="stock-stat-card">
+                <div className="stock-stat-icon low">
+                  <FaHourglassHalf />
+                </div>
+                <div className="stock-stat-details">
+                  <h3>Low Stock</h3>
+                  <p className="stock-stat-value">{stockDashboard.lowStockCount}</p>
+                  <p className="stock-stat-desc">Items running low</p>
+                </div>
+              </div>
+              
+              <div className="stock-stat-card">
+                <div className="stock-stat-icon healthy">
+                  <FaCheck />
+                </div>
+                <div className="stock-stat-details">
+                  <h3>Healthy Stock</h3>
+                  <p className="stock-stat-value">{stockDashboard.healthyStockCount}</p>
+                  <p className="stock-stat-desc">Items with good stock</p>
+                </div>
+              </div>
+              
+              <div className="stock-stat-card">
+                <div className="stock-stat-icon total">
+                  <FaWarehouse />
+                </div>
+                <div className="stock-stat-details">
+                  <h3>Total Items</h3>
+                  <p className="stock-stat-value">{stockDashboard.totalItems}</p>
+                  <p className="stock-stat-desc">In inventory</p>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        
+        <h3>Select Restaurant to Manage Stock</h3>
+        <div className="restaurant-select-grid">
+          {restaurants.map(restaurant => (
+            <div 
+              key={restaurant._id} 
+              className="restaurant-card"
+              onClick={() => handleStockManagementRestaurantSelect(restaurant)}
+            >
+              <div className="rest-container">
+                <div className="rest-image">
+                  <img 
+                    src={restaurant.image} 
+                    alt={restaurant.name}
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/400x200?text=Restaurant';
+                    }}
+                  />
+                </div>
+                <div className="rest-info">
+                  <div className="info-content">
+                    <div className="left-content">
+                      <h3>{restaurant.name}</h3>
+                      <p className="address">📍 {restaurant.address}</p>
+                    </div>
+                    <div className="right-content">
+                      <p className="cuisine">🍽️ {restaurant.cuisine}</p>
+                      <p className="category">🏷️ {restaurant.category}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    ) : (
+      <div className="stock-management-container">
+        <div className="stock-header">
+          <h3>Manage Stock for {stockManagementRestaurant.name}</h3>
+          <button 
+            className="back-to-rest-btn"
+            onClick={handleBackToStockDashboard}
+          >
+            <FaArrowLeft /> Back to Restaurants
+          </button>
+        </div>
+        
+        <div className="stock-filters">
+          <button
+            className={`filter-btn ${stockFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setStockFilter('all')}
+          >
+            All Items
+          </button>
+          <button
+            className={`filter-btn ${stockFilter === 'outOfStock' ? 'active' : ''}`}
+            onClick={() => setStockFilter('outOfStock')}
+          >
+            Out of Stock
+          </button>
+          <button
+            className={`filter-btn ${stockFilter === 'lowStock' ? 'active' : ''}`}
+            onClick={() => setStockFilter('lowStock')}
+          >
+            Low Stock
+          </button>
+          <button
+            className={`filter-btn ${stockFilter === 'healthy' ? 'active' : ''}`}
+            onClick={() => setStockFilter('healthy')}
+          >
+            Healthy Stock
+          </button>
+        </div>
+        
+        <div className="stock-items-container">
+          <table className="stock-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Current Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getFilteredStockItems().map(item => (
+                <tr key={item._id}>
+                  <td>
+                    <div className="item-info">
+                      <img src={item.image} alt={item.name} className="item-thumbnail" />
+                      <div>
+                        <div className="item-name">{item.name}</div>
+                        <div className="item-price">₹{item.price}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{item.category}</td>
+                  <td>{item.stockQuantity || 0}</td>
+                  <td>
+                    <span className={`stock-status ${
+                      item.stockQuantity === 0 ? 'out-of-stock' :
+                      item.stockQuantity <= (item.lowStockThreshold || 5) ? 'low-stock' :
+                      'in-stock'
+                    }`}>
+                      {item.stockQuantity === 0 ? 'Out of Stock' :
+                       item.stockQuantity <= (item.lowStockThreshold || 5) ? 'Low Stock' :
+                       'In Stock'}
+                    </span>
+                  </td>
+                  <td>
+                    <button 
+                      className="update-stock-btn"
+                      onClick={() => {
+                        setSelectedMenuItem(item);
+                        setStockQuantity(item.stockQuantity || 0);
+                      }}
+                    >
+                      Update Stock
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {selectedMenuItem && (
+          <div className="stock-update-modal">
+            <div className="modal-content">
+              <h3>Update Stock: {selectedMenuItem.name}</h3>
+              <div className="form-group">
+                <label>Current Stock: {selectedMenuItem.stockQuantity || 0}</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={stockQuantity}
+                  onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Notes (optional):</label>
+                <textarea
+                  value={stockNote}
+                  onChange={(e) => setStockNote(e.target.value)}
+                  placeholder="Reason for stock update"
+                ></textarea>
+              </div>
+              <div className="modal-actions">
+                <button 
+                  className="cancel-btn"
+                  onClick={() => {
+                    setSelectedMenuItem(null);
+                    setStockNote('');
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="save-btn"
+                  onClick={() => updateStockQuantity(selectedMenuItem._id)}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+  </section>
+)}
       </div>
     </div>
   );
