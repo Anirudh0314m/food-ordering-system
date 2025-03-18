@@ -51,6 +51,8 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use('/api/dialogflow', dialogflowRouter);
+// Add this line with your other routes
+app.use('/api/stock', require('./routes/stockRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
