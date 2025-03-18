@@ -29,6 +29,20 @@ const menuItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Restaurant',
     required: true
+  },
+  // New stock management fields
+  stockQuantity: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  isAvailable: {
+    type: Boolean,
+    default: true
+  },
+  lowStockThreshold: {
+    type: Number,
+    default: 5
   }
 }, {
   timestamps: true
