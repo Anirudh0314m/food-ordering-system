@@ -1623,7 +1623,7 @@ const handleBackToStockDashboard = () => {
         
         <div className="stock-dashboard">
           {stockDashboardLoading ? (
-            <div className="loading-spinner">Loading stock data...</div>
+            <div className="loading-spinner"></div>
           ) : (
             <>
               <div className="stock-stat-card">
