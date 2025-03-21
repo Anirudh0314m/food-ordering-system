@@ -12,8 +12,8 @@ import { useCart } from '../context/CartContext';
 
 
 const defaultCenter = {
-  lat: 12.9716,
-  lng: 77.5946
+  lat: 12.81454481993114,
+  lng: 80.03748836839667
 };
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiYW5pcnVkaDAzMTRtIiwiYSI6ImNtNzR2NDFhMzBja20ycXNjZDdwc3VzcmwifQ.zJGmj5f_nuLyNY-WCfx6dA'; // Replace with your token
@@ -65,8 +65,8 @@ const Dashboard = ({ handleLogout }) => {
   const [address, setAddress] = useState("Select Location");
   const [location, setLocation] = useState(defaultCenter);
   const [viewport, setViewport] = useState({
-    latitude: 12.9716,
-    longitude: 77.5946,
+    latitude: 12.81454481993114, 
+    longitude: 80.03748836839667,
     zoom: 14
   });
   const [isMapOpen, setIsMapOpen] = useState(false);
@@ -87,6 +87,8 @@ const Dashboard = ({ handleLogout }) => {
   const firstMatchRef = useRef(null);
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [searchingLocation, setSearchingLocation] = useState(false);
+  const locationTimeoutRef = useRef(null);
+  const [locationError, setLocationError] = useState('');
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -115,6 +117,14 @@ const Dashboard = ({ handleLogout }) => {
       }
     }
   }, [location]);
+
+  useEffect(() => {
+    return () => {
+      if (locationTimeoutRef.current) {
+        clearTimeout(locationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const fetchRestaurants = async () => {
     try {
@@ -188,44 +198,107 @@ const Dashboard = ({ handleLogout }) => {
 
   const getCurrentLocation = () => {
     setIsLoading(true);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          
-          // Update viewport with current location
-          setViewport({
-            ...viewport,
-            latitude,
-            longitude,
-            zoom: 14
-          });
-
-          // Reverse geocode to get address
-          try {
-            const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${MAPBOX_TOKEN}`
-            );
-            const data = await response.json();
-            
-            if (data.features && data.features.length > 0) {
-              setAddress(data.features[0].place_name);
+    setLocationError('');
+    
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser");
+      setIsLoading(false);
+      return;
+    }
+    
+    // Clear any existing location timeout
+    if (locationTimeoutRef.current) {
+      clearTimeout(locationTimeoutRef.current);
+    }
+    
+    // Set a timeout to prevent hanging if geolocation takes too long
+    locationTimeoutRef.current = setTimeout(() => {
+      setLocationError("Location request timed out. Please try again or search manually.");
+      setIsLoading(false);
+    }, 15000); // 15-second timeout
+    
+    const geoOptions = {
+      enableHighAccuracy: true,  // Request the most accurate position available
+      timeout: 10000,            // 10-second timeout for getting position
+      maximumAge: 0              // Always get a fresh position, don't use cached
+    };
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        // Clear the timeout since we got a position
+        if (locationTimeoutRef.current) {
+          clearTimeout(locationTimeoutRef.current);
+        }
+        
+        const { latitude, longitude } = position.coords;
+        console.log("Raw coordinates:", latitude, longitude);
+        
+        // Update map view
+        setViewport({
+          ...viewport,
+          latitude,
+          longitude,
+          zoom: 16 // Higher zoom for better precision
+        });
+        
+        // Get address from coordinates using Mapbox
+        try {
+          const response = await axios.get(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json`,
+            {
+              params: {
+                access_token: MAPBOX_TOKEN,
+                types: 'address', // Prioritize street addresses
+                limit: 1
+              }
             }
-          } catch (error) {
-            console.error('Error getting address:', error);
-          }
+          );
           
-          setIsLoading(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
+          if (response.data.features && response.data.features.length > 0) {
+            console.log("Found address:", response.data.features[0].place_name);
+            const placeName = response.data.features[0].place_name;
+            
+            // Update address states
+            setAddress(placeName);
+          } else {
+            console.warn("No address found for coordinates");
+            setLocationError("Couldn't find an address for your location. The map shows your position.");
+          }
+        } catch (error) {
+          console.error("Error getting address:", error);
+          setLocationError("Found your location but couldn't get the address. The map shows your position.");
+        } finally {
           setIsLoading(false);
         }
-      );
-    } else {
-      alert("Geolocation is not supported by your browser");
-      setIsLoading(false);
-    }
+      },
+      (error) => {
+        // Clear the timeout since we got an error
+        if (locationTimeoutRef.current) {
+          clearTimeout(locationTimeoutRef.current);
+        }
+        
+        console.error("Geolocation error:", error);
+        let errorMessage;
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Location access denied. Please enable location services in your browser.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information is unavailable. Try searching manually.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out. Please try again.";
+            break;
+          default:
+            errorMessage = "An unknown error occurred getting your location.";
+        }
+        
+        setLocationError(errorMessage);
+        setIsLoading(false);
+      },
+      geoOptions
+    );
   };
 
   // Fixed handleCategoryClick function
