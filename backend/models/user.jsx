@@ -17,6 +17,31 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  addresses: [{
+    formattedAddress: String,
+    coordinates: {
+      latitude: Number,
+      longitude: Number
+    },
+    type: {
+      type: String,
+      enum: ['home', 'work', 'other']
+    },
+    landmark: String,
+    lastUsed: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  primaryAddress: {
+    formattedAddress: String,
+    coordinates: {
+      latitude: Number,
+      longitude: Number
+    },
+    type: String,
+    landmark: String
   }
 });
 
