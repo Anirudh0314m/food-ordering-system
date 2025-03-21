@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { FaUserCircle, FaSearch, FaShoppingCart, FaBars, FaMapMarkerAlt, FaStar, FaClock, FaUtensils, FaTimes, FaPlus } from "react-icons/fa";
+import { FaUserCircle, FaSearch, FaShoppingCart, FaBars, FaMapMarkerAlt, FaStar, FaClock, FaUtensils, FaTimes, FaPlus, FaLocationArrow } from "react-icons/fa";
 import ReactMapGL, { Marker } from 'react-map-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -85,6 +85,8 @@ const Dashboard = ({ handleLogout }) => {
   const restaurantsSectionRef = useRef(null);
   const { cart, addToCart, decreaseQuantity, cartTotal } = useCart();
   const firstMatchRef = useRef(null);
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [searchingLocation, setSearchingLocation] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -138,28 +140,51 @@ const Dashboard = ({ handleLogout }) => {
   };
 
   const handleLocationSearch = useCallback(async (searchText) => {
+    if (!searchText || searchText.length < 2) {
+      setLocationSuggestions([]);
+      return;
+    }
+    
+    setSearchingLocation(true);
+    
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchText)}.json?access_token=${MAPBOX_TOKEN}`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchText)}.json?access_token=${MAPBOX_TOKEN}&types=address,place,locality,neighborhood&limit=5`
       );
       const data = await response.json();
       
       if (data.features && data.features.length > 0) {
-        const [longitude, latitude] = data.features[0].center;
-        const placeName = data.features[0].place_name;
-        
-        setViewport({
-          ...viewport,
-          longitude,
-          latitude,
-          zoom: 14
-        });
-        setAddress(placeName);
+        // Store the suggestions for display
+        setLocationSuggestions(data.features.map(feature => ({
+          id: feature.id,
+          placeName: feature.place_name,
+          coordinates: feature.center,
+          text: feature.text
+        })));
+      } else {
+        setLocationSuggestions([]);
       }
     } catch (error) {
       console.error('Error searching location:', error);
+      setLocationSuggestions([]);
+    } finally {
+      setSearchingLocation(false);
     }
-  }, [viewport]);
+  }, [MAPBOX_TOKEN]);
+
+  const handleSuggestionSelect = (suggestion) => {
+    const [longitude, latitude] = suggestion.coordinates;
+    
+    setViewport({
+      ...viewport,
+      longitude,
+      latitude,
+      zoom: 14
+    });
+    
+    setAddress(suggestion.placeName);
+    setLocationSuggestions([]); // Clear suggestions after selection
+  };
 
   const getCurrentLocation = () => {
     setIsLoading(true);
@@ -507,23 +532,41 @@ const Dashboard = ({ handleLogout }) => {
               onClick={getCurrentLocation}
               disabled={isLoading}
             >
+              <FaLocationArrow className={isLoading ? "rotating" : ""} />
               {isLoading ? 'Getting location...' : 'Use My Current Location'}
             </button>
 
             <div className="search-box-container">
-              <input
-                type="text"
-                placeholder="Search your location..."
-                className="location-input"
-                onChange={(e) => {
-                  if (e.target.value.length > 2) { // Only search if input is longer than 2 characters
+              <div className="location-search-wrapper">
+                <FaSearch className="location-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search your location..."
+                  className="location-input"
+                  onChange={(e) => {
                     handleLocationSearch(e.target.value);
-                  }
-                }}
-              />
-              <div className="search-suggestions">
-                {/* Suggestions will appear here */}
+                  }}
+                />
+                {searchingLocation && <div className="location-spinner"></div>}
               </div>
+              
+              {locationSuggestions.length > 0 && (
+                <div className="location-suggestions">
+                  {locationSuggestions.map(suggestion => (
+                    <div 
+                      key={suggestion.id} 
+                      className="location-suggestion-item"
+                      onClick={() => handleSuggestionSelect(suggestion)}
+                    >
+                      <FaMapMarkerAlt className="suggestion-icon" />
+                      <div className="suggestion-text">
+                        <div className="suggestion-primary">{suggestion.text}</div>
+                        <div className="suggestion-secondary">{suggestion.placeName}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <ReactMapGL
               mapboxAccessToken={MAPBOX_TOKEN}
