@@ -1,10 +1,27 @@
 const Address = require('../models/Address.jsx');
+const mongoose = require('mongoose');
 
 const addressController = {
   // Get all addresses for the current user
   getAllAddresses: async (req, res) => {
     try {
-      const addresses = await Address.find({ user: req.user._id });
+      console.log("Fetching addresses for user:", req.user);
+      
+      // Extract user ID from token the same way as in createAddress
+      const userId = req.user?.userId || req.user?.id || req.user?._id;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID not found in token" });
+      }
+      
+      // Create ObjectId from userId
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      console.log("Looking for addresses with user ID:", userObjectId);
+      
+      // Find addresses for this user
+      const addresses = await Address.find({ user: userObjectId });
+      console.log(`Found ${addresses.length} addresses`);
+      
       res.json(addresses);
     } catch (error) {
       console.error('Error fetching addresses:', error);
@@ -15,9 +32,19 @@ const addressController = {
   // Get a specific address by ID
   getAddressById: async (req, res) => {
     try {
+      // Extract user ID from token
+      const userId = req.user?.userId || req.user?.id || req.user?._id;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID not found in token" });
+      }
+      
+      // Create ObjectId
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      
       const address = await Address.findOne({ 
         _id: req.params.id, 
-        user: req.user._id 
+        user: userObjectId
       });
       
       if (!address) {
@@ -34,36 +61,51 @@ const addressController = {
   // Create a new address
   createAddress: async (req, res) => {
     try {
-      const { type, formattedAddress, coordinates, additionalDetails, isDefault } = req.body;
+      console.log("Received address data:", req.body);
       
-      // Validate required fields
-      if (!formattedAddress) {
-        return res.status(400).json({ message: 'Address is required' });
+      // Extract user ID from token
+      const userId = req.user?.userId || req.user?.id || req.user?._id;
+      console.log("User ID from token:", userId);
+      
+      // Use user ID from token if available, otherwise from request body
+      const userIdToUse = userId || req.body.user;
+      
+      if (!userIdToUse) {
+        return res.status(400).json({ message: "User ID is required" });
       }
       
-      // Create new address
+      // Create new address document
       const newAddress = new Address({
-        user: req.user._id,
-        type: type || 'home',
-        formattedAddress,
-        coordinates,
-        additionalDetails,
-        isDefault: isDefault || false
+        type: req.body.type,
+        formattedAddress: req.body.formattedAddress,
+        coordinates: req.body.coordinates,
+        additionalDetails: req.body.additionalDetails || {},
+        isDefault: req.body.isDefault || false,
+        // FIX: Use 'new' with the ObjectId constructor
+        user: new mongoose.Types.ObjectId(userIdToUse)
       });
       
-      // If this is the default address, unset any other default
-      if (isDefault) {
-        await Address.updateMany(
-          { user: req.user._id, isDefault: true },
-          { $set: { isDefault: false } }
-        );
+      // Save to database
+      const savedAddress = await newAddress.save();
+      console.log("Address saved successfully:", savedAddress._id);
+      
+      // Return the saved address
+      res.status(201).json(savedAddress);
+    } catch (error) {
+      console.error("Error creating address:", error);
+      
+      // Better error handling
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ 
+          message: 'Validation error', 
+          details: error.message 
+        });
       }
       
-      await newAddress.save();
-      res.status(201).json(newAddress);
-    } catch (error) {
-      console.error('Error creating address:', error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ 
+        message: 'Server error',
+        details: error.message 
+      });
     }
   },
 

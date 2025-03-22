@@ -101,6 +101,10 @@ const Login = () => {
         
         // Store user info
         localStorage.setItem('foodAppToken', result.token);
+        
+        // IMPORTANT: Also store the token with the 'authToken' key for API functions
+        localStorage.setItem('authToken', result.token);
+        
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userRole', 'user');
         localStorage.setItem('userId', userFound.id);

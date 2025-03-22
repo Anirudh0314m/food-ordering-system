@@ -135,31 +135,22 @@ const Dashboard = ({ handleLogout }) => {
   }, []);
 
   useEffect(() => {
-    const fetchSavedAddresses = async () => {
+    const loadSavedAddresses = async () => {
       try {
-        setAddressLoading(true); // Make sure this state exists
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          const response = await axios.get('http://localhost:5000/api/user/addresses', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (response.data && Array.isArray(response.data)) {
-            console.log('Fetched addresses:', response.data.length);
-            setSavedAddresses(response.data);
-          }
-        } else {
-          console.log('No auth token found, skipping address fetch');
-          setSavedAddresses([]);
-        }
+        setAddressLoading(true);
+        console.log('Loading addresses on component mount...');
+        const addresses = await getAllAddresses();
+        console.log('Initial address fetch returned:', addresses.length, 'addresses');
+        setSavedAddresses(addresses);
       } catch (error) {
-        console.error('Error fetching saved addresses:', error);
+        console.error('Error loading saved addresses:', error);
         setSavedAddresses([]);
       } finally {
         setAddressLoading(false);
       }
     };
 
-    fetchSavedAddresses();
+    loadSavedAddresses();
   }, []);
 
   useEffect(() => {
@@ -608,19 +599,20 @@ const saveAddress = async () => {
 const fetchSavedAddresses = async () => {
   try {
     setAddressLoading(true);
+    console.log("Fetching saved addresses...");
     
-    // Use the API function instead of direct axios call
     const addresses = await getAllAddresses();
-    console.log('Fetched addresses:', addresses.length);
-    setSavedAddresses(addresses);
-  } catch (error) {
-    if (error.message === 'Authentication required') {
-      console.log('User not logged in, skipping address fetch');
-      setSavedAddresses([]);
+    console.log('Fetched addresses:', addresses.length, addresses);
+    
+    if (Array.isArray(addresses)) {
+      setSavedAddresses(addresses);
     } else {
-      console.error('Error fetching saved addresses:', error);
+      console.error("Expected array of addresses but got:", addresses);
       setSavedAddresses([]);
     }
+  } catch (error) {
+    console.error('Error fetching saved addresses:', error);
+    setSavedAddresses([]);
   } finally {
     setAddressLoading(false);
   }

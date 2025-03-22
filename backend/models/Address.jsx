@@ -9,15 +9,21 @@ const addressSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ['home', 'work', 'other'],
-    default: 'home'
+    required: true
   },
   formattedAddress: {
     type: String,
     required: true
   },
   coordinates: {
-    latitude: Number,
-    longitude: Number
+    latitude: {
+      type: Number,
+      required: true
+    },
+    longitude: {
+      type: Number,
+      required: true
+    }
   },
   additionalDetails: {
     flatNumber: String,

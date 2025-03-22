@@ -136,20 +136,44 @@ export const getStockHistory = async (itemId) => {
 // Get all addresses for the current user
 export const getAllAddresses = async () => {
   try {
-    const token = localStorage.getItem('authToken');
+    // Get token with fallback
+    let token = localStorage.getItem('authToken');
     if (!token) {
-      throw new Error('Authentication required');
+      token = localStorage.getItem('foodAppToken');
+      if (token) {
+        localStorage.setItem('authToken', token);
+      }
     }
     
-    const response = await axios.get(`${API_URL}/user/addresses`, {
+    if (!token) {
+      console.log('No auth token found, skipping address fetch');
+      return [];
+    }
+    
+    console.log('Fetching addresses with token:', token.substring(0, 15) + '...');
+    
+    const response = await axios.get('http://localhost:5000/api/user/addresses', {
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
-    return response.data;
+    
+    console.log('Address fetch response:', response.data);
+    
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else {
+      console.error("API returned non-array response:", response.data);
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching addresses:", error);
-    throw error.response?.data?.message || "Failed to fetch addresses";
+    if (error.response) {
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", error.response.data);
+    }
+    return [];
   }
 };
 
@@ -173,17 +197,49 @@ export const getAddressById = async (addressId) => {
   }
 };
 
-// Create a new address
+// Update the createAddress function to include user ID
+
 export const createAddress = async (addressData) => {
   try {
-    const token = localStorage.getItem('authToken');
+    // Get token with fallback
+    let token = localStorage.getItem('authToken');
+    if (!token) {
+      token = localStorage.getItem('foodAppToken');
+      if (token) {
+        localStorage.setItem('authToken', token);
+      }
+    }
+    
     if (!token) {
       throw new Error('Authentication required');
     }
     
+    // Debug: Log all localStorage items
+    console.log("--- DEBUG: ALL LOCALSTORAGE ITEMS ---");
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      console.log(`${key}: ${localStorage.getItem(key)}`);
+    }
+    
+    // Get the user ID from localStorage
+    const userId = localStorage.getItem('userId');
+    console.log("User ID from localStorage:", userId);
+    
+    if (!userId) {
+      throw new Error('User ID not found');
+    }
+    
+    // Add the user ID to the address data
+    const completeAddressData = {
+      ...addressData,
+      user: userId  // This is the missing required field
+    };
+    
+    console.log("FULL address data with user:", JSON.stringify(completeAddressData, null, 2));
+    
     const response = await axios.post(
       `${API_URL}/user/addresses`, 
-      addressData,
+      completeAddressData,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -194,7 +250,13 @@ export const createAddress = async (addressData) => {
     return response.data;
   } catch (error) {
     console.error("Error creating address:", error);
-    throw error.response?.data?.message || "Failed to create address";
+    
+    // Better error reporting
+    if (error.response && error.response.data) {
+      console.error("Server error details:", error.response.data);
+    }
+    
+    throw error.response?.data?.message || error.message || "Failed to create address";
   }
 };
 
