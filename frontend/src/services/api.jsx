@@ -130,3 +130,139 @@ export const getStockHistory = async (itemId) => {
     throw error.response?.data?.message || "Failed to fetch stock history";
   }
 };
+
+// Add these address-related API functions to your api.jsx file
+
+// Get all addresses for the current user
+export const getAllAddresses = async () => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    const response = await axios.get(`${API_URL}/user/addresses`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching addresses:", error);
+    throw error.response?.data?.message || "Failed to fetch addresses";
+  }
+};
+
+// Get a specific address by ID
+export const getAddressById = async (addressId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    const response = await axios.get(`${API_URL}/user/addresses/${addressId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    throw error.response?.data?.message || "Failed to fetch address";
+  }
+};
+
+// Create a new address
+export const createAddress = async (addressData) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    const response = await axios.post(
+      `${API_URL}/user/addresses`, 
+      addressData,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating address:", error);
+    throw error.response?.data?.message || "Failed to create address";
+  }
+};
+
+// Update an existing address
+export const updateAddress = async (addressId, addressData) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    const response = await axios.put(
+      `${API_URL}/user/addresses/${addressId}`, 
+      addressData,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating address:", error);
+    throw error.response?.data?.message || "Failed to update address";
+  }
+};
+
+// Delete an address
+export const deleteAddress = async (addressId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    const response = await axios.delete(`${API_URL}/user/addresses/${addressId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting address:", error);
+    throw error.response?.data?.message || "Failed to delete address";
+  }
+};
+
+// Set an address as default
+export const setDefaultAddress = async (addressId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    const response = await axios.patch(
+      `${API_URL}/user/addresses/${addressId}/set-default`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error setting default address:", error);
+    throw error.response?.data?.message || "Failed to set default address";
+  }
+};

@@ -10,6 +10,7 @@ import "./Dashboard.css";
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 import AddressPanel from '../components/AddressPanel';
+import { getAllAddresses, createAddress } from '../services/api';
 
 const defaultCenter = {
   lat: 12.81454481993114,
@@ -59,6 +60,7 @@ const categories = [
 
 const Dashboard = ({ handleLogout }) => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -93,6 +95,8 @@ const Dashboard = ({ handleLogout }) => {
   const [addressLabel, setAddressLabel] = useState('home');
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [isAddressPanelOpen, setIsAddressPanelOpen] = useState(false);
+  const [activeLocationTab, setActiveLocationTab] = useState('search');
+  const [addressLoading, setAddressLoading] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -133,21 +137,38 @@ const Dashboard = ({ handleLogout }) => {
   useEffect(() => {
     const fetchSavedAddresses = async () => {
       try {
+        setAddressLoading(true); // Make sure this state exists
         const token = localStorage.getItem('authToken');
         if (token) {
           const response = await axios.get('http://localhost:5000/api/user/addresses', {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (response.data && Array.isArray(response.data)) {
+            console.log('Fetched addresses:', response.data.length);
             setSavedAddresses(response.data);
           }
+        } else {
+          console.log('No auth token found, skipping address fetch');
+          setSavedAddresses([]);
         }
       } catch (error) {
         console.error('Error fetching saved addresses:', error);
+        setSavedAddresses([]);
+      } finally {
+        setAddressLoading(false);
       }
     };
-    
+
     fetchSavedAddresses();
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('authToken');
+      setIsLoggedIn(!!token);
+    };
+    
+    checkAuth();
   }, []);
 
   const fetchRestaurants = async () => {
@@ -507,58 +528,103 @@ const Dashboard = ({ handleLogout }) => {
     });
   };
 
-  const saveAddress = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        alert('Please log in to save addresses');
-        setIsLoading(false);
-        return;
-      }
-      
-      // Format address data for API
-      const addressData = {
-        type: addressLabel, // 'home', 'work', or 'other'
-        formattedAddress: address,
-        coordinates: {
-          latitude: viewport.latitude,
-          longitude: viewport.longitude
-        },
-        // User can add these details later in the AddressPanel
-        additionalDetails: {
-          landmark: '',
-          flatNumber: '',
-          buildingName: ''
-        }
-      };
-      
-      // Call API to save address
-      const response = await axios.post(
-        'http://localhost:5000/api/user/addresses',
-        addressData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      if (response.data) {
-        // Update local state with the new address
-        setSavedAddresses(prev => [...prev, response.data]);
-        
-        // Show success message
-        alert('Address saved successfully!');
-        
-        // Close the map modal
-        setIsMapOpen(false);
-      }
-    } catch (error) {
-      console.error('Error saving address:', error);
-      alert('Failed to save address: ' + (error.response?.data?.message || error.message));
-    } finally {
+  // Update your saveAddress function in Dashboard.jsx
+const saveAddress = async () => {
+  try {
+    setIsLoading(true);
+    
+    // Make sure we have proper coordinates
+    if (!viewport || !viewport.latitude || !viewport.longitude) {
+      alert('Could not determine location coordinates');
       setIsLoading(false);
-      setSaveAddressMode(false);
+      return;
     }
-  };
+    
+    // Ensure we have an address string
+    if (!address || address === "Select Location") {
+      alert('Please select a valid location first');
+      setIsLoading(false);
+      return;
+    }
+    
+    console.log('Preparing to save address with:');
+    console.log('- Type:', addressLabel);
+    console.log('- Address:', address);
+    console.log('- Coordinates:', viewport.latitude, viewport.longitude);
+    
+    // Format address data for API
+    const addressData = {
+      type: addressLabel,
+      formattedAddress: address,
+      coordinates: {
+        latitude: viewport.latitude,
+        longitude: viewport.longitude
+      },
+      additionalDetails: {
+        flatNumber: "",
+        buildingName: "",
+        landmark: ""
+      },
+      isDefault: false
+    };
+    
+    // Use the API function instead of direct axios call
+    const newAddress = await createAddress(addressData);
+    console.log('Address saved successfully:', newAddress);
+    
+    // Update local state with the new address
+    setSavedAddresses(prev => [...prev, newAddress]);
+    
+    // Show success message
+    alert('Address saved successfully!');
+    
+    // Refresh addresses
+    fetchSavedAddresses();
+    
+    // Close the map modal
+    setIsMapOpen(false);
+  } catch (error) {
+    console.error('Error saving address:', error);
+    
+    if (error.message === 'Authentication required') {
+      const confirm = window.confirm('You need to be logged in to save addresses. Would you like to log in now?');
+      if (confirm) {
+        navigate('/login', { 
+          state: { 
+            returnTo: '/dashboard',
+            message: 'Please log in to save your address'
+          } 
+        });
+      }
+    } else {
+      alert('Failed to save address: ' + error);
+    }
+  } finally {
+    setIsLoading(false);
+    setSaveAddressMode(false);
+  }
+};
+
+const fetchSavedAddresses = async () => {
+  try {
+    setAddressLoading(true);
+    
+    // Use the API function instead of direct axios call
+    const addresses = await getAllAddresses();
+    console.log('Fetched addresses:', addresses.length);
+    setSavedAddresses(addresses);
+  } catch (error) {
+    if (error.message === 'Authentication required') {
+      console.log('User not logged in, skipping address fetch');
+      setSavedAddresses([]);
+    } else {
+      console.error('Error fetching saved addresses:', error);
+      setSavedAddresses([]);
+    }
+  } finally {
+    setAddressLoading(false);
+  }
+};
   
   return (
     <div className="dashboard-container">
@@ -677,47 +743,121 @@ const Dashboard = ({ handleLogout }) => {
             <button className="close-modal" onClick={() => setIsMapOpen(false)}>×</button>
             <h2>Select Your Location</h2>
             
-            <button 
-              className="get-location-btn" 
-              onClick={getCurrentLocation}
-              disabled={isLoading}
-            >
-              <FaLocationArrow className={isLoading ? "rotating" : ""} />
-              {isLoading ? 'Getting location...' : 'Use My Current Location'}
-            </button>
-
-            <div className="search-box-container">
-              <div className="location-search-wrapper">
-                <FaSearch className="location-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search your location..."
-                  className="location-input"
-                  onChange={(e) => {
-                    handleLocationSearch(e.target.value);
-                  }}
-                />
-                {searchingLocation && <div className="location-spinner"></div>}
-              </div>
-              
-              {locationSuggestions.length > 0 && (
-                <div className="location-suggestions">
-                  {locationSuggestions.map(suggestion => (
-                    <div 
-                      key={suggestion.id} 
-                      className="location-suggestion-item"
-                      onClick={() => handleSuggestionSelect(suggestion)}
-                    >
-                      <FaMapMarkerAlt className="suggestion-icon" />
-                      <div className="suggestion-text">
-                        <div className="suggestion-primary">{suggestion.text}</div>
-                        <div className="suggestion-secondary">{suggestion.placeName}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            <div className="location-tabs">
+              <button 
+                className={`location-tab ${activeLocationTab === 'search' ? 'active' : ''}`}
+                onClick={() => setActiveLocationTab('search')}
+              >
+                <FaSearch /> Search Location
+              </button>
+              <button 
+                className={`location-tab ${activeLocationTab === 'current' ? 'active' : ''}`}
+                onClick={() => setActiveLocationTab('current')}
+              >
+                <FaLocationArrow /> Current Location
+              </button>
+              {savedAddresses.length > 0 && (
+                <button 
+                  className={`location-tab ${activeLocationTab === 'saved' ? 'active' : ''}`}
+                  onClick={() => setActiveLocationTab('saved')}
+                >
+                  <FaMapMarkerAlt /> Saved Addresses
+                </button>
               )}
             </div>
+            
+            {/* Conditionally render content based on active tab */}
+            {activeLocationTab === 'search' && (
+              <div className="search-box-container">
+                <div className="location-search-wrapper">
+                  <FaSearch className="location-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search your location..."
+                    className="location-input"
+                    onChange={(e) => {
+                      handleLocationSearch(e.target.value);
+                    }}
+                  />
+                  {searchingLocation && <div className="location-spinner"></div>}
+                </div>
+                
+                {locationSuggestions.length > 0 && (
+                  <div className="location-suggestions">
+                    {locationSuggestions.map(suggestion => (
+                      <div 
+                        key={suggestion.id} 
+                        className="location-suggestion-item"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                      >
+                        <FaMapMarkerAlt className="suggestion-icon" />
+                        <div className="suggestion-text">
+                          <div className="suggestion-primary">{suggestion.text}</div>
+                          <div className="suggestion-secondary">{suggestion.placeName}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {activeLocationTab === 'current' && (
+              <button 
+                className="get-location-btn" 
+                onClick={getCurrentLocation}
+                disabled={isLoading}
+              >
+                <FaLocationArrow className={isLoading ? "rotating" : ""} />
+                {isLoading ? 'Getting location...' : 'Use My Current Location'}
+              </button>
+            )}
+            
+            {activeLocationTab === 'saved' && (
+              <div className="saved-addresses-list">
+                {addressLoading ? (
+                  <div className="address-loading">Loading saved addresses...</div>
+                ) : savedAddresses.length === 0 ? (
+                  <div className="no-addresses">No saved addresses found</div>
+                ) : (
+                  savedAddresses.map(addr => (
+                    <div 
+                      key={addr._id} 
+                      className="saved-address-item"
+                      onClick={() => {
+                        // Set map to this address location
+                        setViewport({
+                          ...viewport,
+                          latitude: addr.coordinates.latitude,
+                          longitude: addr.coordinates.longitude,
+                          zoom: 15
+                        });
+                        setAddress(addr.formattedAddress);
+                      }}
+                    >
+                      <div className="address-icon">
+                        {addr.type === 'home' ? <FaHome /> : 
+                        addr.type === 'work' ? <FaBriefcase /> : <FaMapMarkerAlt />}
+                      </div>
+                      <div className="address-details">
+                        <div className="address-type">
+                          {addr.type.charAt(0).toUpperCase() + addr.type.slice(1)}
+                          {addr.isDefault && <span className="default-badge">Default</span>}
+                        </div>
+                        <div className="address-text">{addr.formattedAddress}</div>
+                        {addr.additionalDetails?.flatNumber && (
+                          <div className="address-additional">
+                            {addr.additionalDetails.flatNumber}
+                            {addr.additionalDetails.buildingName && `, ${addr.additionalDetails.buildingName}`}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+            
             <ReactMapGL
               mapboxAccessToken={MAPBOX_TOKEN}
               initialViewState={viewport}
@@ -838,9 +978,12 @@ const Dashboard = ({ handleLogout }) => {
               className="confirm-location-btn"
               onClick={() => {
                 if (saveAddressMode) {
+                  console.log('Saving address...');
                   saveAddress();
+                } else {
+                  console.log('Just confirming location without saving...');
+                  setIsMapOpen(false);
                 }
-                setIsMapOpen(false);
               }}
               disabled={address === "Select Location"}
             >

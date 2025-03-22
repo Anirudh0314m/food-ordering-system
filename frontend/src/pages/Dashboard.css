@@ -1152,3 +1152,103 @@ body::-webkit-scrollbar {
 .confirm-location-btn:hover {
   background-color: #3e8e41;
 }
+
+/* Add these styles to your Dashboard.css file */
+
+.location-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.location-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  background-color: #f5f5f5;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.location-tab.active {
+  background-color: #a82d2d;
+  color: white;
+}
+
+.saved-addresses-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.saved-address-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saved-address-item:hover {
+  border-color: #a82d2d;
+  background-color: #fff9f9;
+}
+
+.address-icon {
+  font-size: 18px;
+  color: #a82d2d;
+  margin-right: 15px;
+  padding-top: 2px;
+}
+
+.address-details {
+  flex: 1;
+}
+
+.address-type {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.default-badge {
+  font-size: 11px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+
+.address-text {
+  font-size: 14px;
+  color: #333;
+  margin-top: 5px;
+}
+
+.address-additional {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.address-loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.no-addresses {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
