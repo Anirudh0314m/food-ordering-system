@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { FaUserCircle, FaSearch, FaShoppingCart, FaBars, FaMapMarkerAlt, FaStar, FaClock, FaUtensils, FaTimes, FaPlus, FaLocationArrow } from "react-icons/fa";
+import { FaUserCircle, FaSearch, FaShoppingCart, FaBars, FaMapMarkerAlt, FaStar, FaClock, FaUtensils, FaTimes, FaPlus, FaLocationArrow, FaHome, FaBriefcase } from "react-icons/fa";
 import ReactMapGL, { Marker } from 'react-map-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -9,7 +9,7 @@ import axios from 'axios';
 import "./Dashboard.css";
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
-
+import AddressPanel from '../components/AddressPanel';
 
 const defaultCenter = {
   lat: 12.81454481993114,
@@ -89,6 +89,10 @@ const Dashboard = ({ handleLogout }) => {
   const [searchingLocation, setSearchingLocation] = useState(false);
   const locationTimeoutRef = useRef(null);
   const [locationError, setLocationError] = useState('');
+  const [saveAddressMode, setSaveAddressMode] = useState(false);
+  const [addressLabel, setAddressLabel] = useState('home');
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [isAddressPanelOpen, setIsAddressPanelOpen] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -124,6 +128,26 @@ const Dashboard = ({ handleLogout }) => {
         clearTimeout(locationTimeoutRef.current);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          const response = await axios.get('http://localhost:5000/api/user/addresses', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.data && Array.isArray(response.data)) {
+            setSavedAddresses(response.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching saved addresses:', error);
+      }
+    };
+    
+    fetchSavedAddresses();
   }, []);
 
   const fetchRestaurants = async () => {
@@ -482,6 +506,59 @@ const Dashboard = ({ handleLogout }) => {
       loading: false
     });
   };
+
+  const saveAddress = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        alert('Please log in to save addresses');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Format address data for API
+      const addressData = {
+        type: addressLabel, // 'home', 'work', or 'other'
+        formattedAddress: address,
+        coordinates: {
+          latitude: viewport.latitude,
+          longitude: viewport.longitude
+        },
+        // User can add these details later in the AddressPanel
+        additionalDetails: {
+          landmark: '',
+          flatNumber: '',
+          buildingName: ''
+        }
+      };
+      
+      // Call API to save address
+      const response = await axios.post(
+        'http://localhost:5000/api/user/addresses',
+        addressData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (response.data) {
+        // Update local state with the new address
+        setSavedAddresses(prev => [...prev, response.data]);
+        
+        // Show success message
+        alert('Address saved successfully!');
+        
+        // Close the map modal
+        setIsMapOpen(false);
+      }
+    } catch (error) {
+      console.error('Error saving address:', error);
+      alert('Failed to save address: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsLoading(false);
+      setSaveAddressMode(false);
+    }
+  };
   
   return (
     <div className="dashboard-container">
@@ -681,13 +758,93 @@ const Dashboard = ({ handleLogout }) => {
                 <FaMapMarkerAlt style={{ fontSize: '2rem', color: '#a82d2d' }} />
               </Marker>
             </ReactMapGL>
+            <div className="location-actions">
+              {/* Add this after the map */}
+              <div className="delivery-info">
+                <h3>Delivery Options</h3>
+                
+                {address !== "Select Location" && (
+                  <div className="delivery-details">
+                    <div className="delivery-estimate">
+                      <p><strong>Estimated Delivery Time:</strong></p>
+                      <p className="estimate-time">25-35 min</p>
+                      <p className="estimate-note">
+                        Times are estimated and depend on restaurant availability and traffic
+                      </p>
+                    </div>
+                    
+                    <div className="delivery-fee">
+                      <p><strong>Delivery Fee:</strong></p>
+                      <p className="fee-amount">₹40</p>
+                      <p className="fee-note">Free delivery on orders above ₹499</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {address !== "Select Location" && (
+                <div className="save-address-option">
+                  <label>
+                    <input 
+                      type="checkbox" 
+                      checked={saveAddressMode} 
+                      onChange={() => setSaveAddressMode(!saveAddressMode)} 
+                    />
+                    Save this address for future orders
+                  </label>
+                  
+                  {saveAddressMode && (
+                    <>
+                      <div className="address-label-selector">
+                        <button 
+                          className={`address-label ${addressLabel === 'home' ? 'selected' : ''}`}
+                          onClick={() => setAddressLabel('home')}
+                        >
+                          <FaHome /> Home
+                        </button>
+                        <button 
+                          className={`address-label ${addressLabel === 'work' ? 'selected' : ''}`}
+                          onClick={() => setAddressLabel('work')}
+                        >
+                          <FaBriefcase /> Work
+                        </button>
+                        <button 
+                          className={`address-label ${addressLabel === 'other' ? 'selected' : ''}`}
+                          onClick={() => setAddressLabel('other')}
+                        >
+                          <FaMapMarkerAlt /> Other
+                        </button>
+                      </div>
+                      
+                      <p className="manage-addresses-text">
+                        <button 
+                          className="view-all-addresses-btn" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsAddressPanelOpen(true);
+                          }}
+                        >
+                          View all saved addresses
+                        </button>
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Update the confirm location button */}
             <button 
               className="confirm-location-btn"
               onClick={() => {
+                if (saveAddressMode) {
+                  saveAddress();
+                }
                 setIsMapOpen(false);
               }}
+              disabled={address === "Select Location"}
             >
-              Confirm Location
+              {saveAddressMode ? 'Save & Confirm Location' : 'Confirm Location'}
             </button>
           </div>
         </div>
@@ -804,6 +961,10 @@ const Dashboard = ({ handleLogout }) => {
       {activeMenu.isOpen && (
         <div className="overlay" onClick={closeMenu}></div>
       )}
+      <AddressPanel 
+        isOpen={isAddressPanelOpen} 
+        onClose={() => setIsAddressPanelOpen(false)} 
+      />
     </div>
   );
 };

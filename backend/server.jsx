@@ -18,6 +18,9 @@ const orderRoutes = require("./routes/orderRoutes.jsx");
 const paymentRoutes = require("./routes/paymentRoutes.jsx");
 const menuItemRoutes = require("./routes/menuItems.jsx"); // Changed to match file name
 const dialogflowRouter = require('./routes/dialogFlow');
+const addressRoutes = require('./routes/addressRoutes.jsx');
+
+
 
 const app = express();
 
@@ -66,6 +69,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use('/api/dialogflow', dialogflowRouter);
+app.use('/api/user/addresses', addressRoutes);
 // Add this line with your other routes
 app.use('/api/stock', require('./routes/stockRoutes.jsx'));
 

@@ -1,97 +1,197 @@
-// src/components/AddressPanel.js
-
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaHome, FaBriefcase, FaMapMarkerAlt, FaSave, FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
-import './AddressPanel.css'; // We'll create this next
+import axios from 'axios';
+import './AddressPanel.css';
 
 const AddressPanel = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('home');
-  const [addresses, setAddresses] = useState({
-    home: { label: 'Home', address: '', landmark: '' },
-    work: { label: 'Work', address: '', landmark: '' },
-    other: { label: 'Other', address: '', landmark: '' }
-  });
+  const [addresses, setAddresses] = useState([]);
+  const [filteredAddresses, setFilteredAddresses] = useState([]);
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [editingAddress, setEditingAddress] = useState({
+    _id: '',
+    type: 'home',
+    formattedAddress: '',
+    additionalDetails: {
+      landmark: '',
+      flatNumber: '',
+      buildingName: ''
+    }
+  });
   
-  // Load addresses when panel opens
+  // Load addresses from API when panel opens
   useEffect(() => {
     if (isOpen) {
-      const savedAddresses = localStorage.getItem('userAddresses');
-      if (savedAddresses) {
-        setAddresses(JSON.parse(savedAddresses));
-      }
+      fetchAddresses();
     }
   }, [isOpen]);
   
-  const handleInputChange = (e, type) => {
-    const { name, value } = e.target;
-    setAddresses(prev => ({
-      ...prev,
-      [type]: {
-        ...prev[type],
-        [name]: value
+  // Filter addresses based on active tab
+  useEffect(() => {
+    if (addresses.length > 0) {
+      setFilteredAddresses(addresses.filter(addr => addr.type === activeTab));
+    }
+  }, [activeTab, addresses]);
+  
+  const fetchAddresses = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setMessage('Please log in to manage addresses');
+        setLoading(false);
+        return;
       }
-    }));
+      
+      const response = await axios.get('http://localhost:5000/api/user/addresses', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data) {
+        setAddresses(response.data);
+        // Set active tab based on what addresses exist
+        const types = ['home', 'work', 'other'];
+        for (const type of types) {
+          if (response.data.some(addr => addr.type === type)) {
+            setActiveTab(type);
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+      setMessage('Error loading addresses. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
   
-  const toggleEdit = () => {
-    setEditing(!editing);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'landmark' || name === 'flatNumber' || name === 'buildingName') {
+      setEditingAddress(prev => ({
+        ...prev,
+        additionalDetails: {
+          ...prev.additionalDetails,
+          [name]: value
+        }
+      }));
+    } else {
+      setEditingAddress(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
   
-  const saveAddresses = () => {
+  const startEditing = (address) => {
+    setEditingAddress(address);
+    setEditing(true);
+  };
+  
+  const cancelEditing = () => {
+    setEditing(false);
+    setEditingAddress({
+      _id: '',
+      type: activeTab,
+      formattedAddress: '',
+      additionalDetails: {
+        landmark: '',
+        flatNumber: '',
+        buildingName: ''
+      }
+    });
+  };
+  
+  const saveAddress = async () => {
     setLoading(true);
     
     try {
-      // Validate address for current tab
-      if (!addresses[activeTab].address.trim()) {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setMessage('Please log in to save addresses');
+        setLoading(false);
+        return;
+      }
+      
+      // Validate address
+      if (!editingAddress.formattedAddress.trim()) {
         setMessage('Please enter an address');
         setLoading(false);
         return;
       }
       
-      // Save addresses to localStorage
-      localStorage.setItem('userAddresses', JSON.stringify(addresses));
-      
-      // If editing, exit edit mode
-      if (editing) {
-        setEditing(false);
+      let response;
+      if (editing && editingAddress._id) {
+        // Update existing address
+        response = await axios.put(
+          `http://localhost:5000/api/user/addresses/${editingAddress._id}`,
+          editingAddress,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        // Update addresses list
+        setAddresses(prev => prev.map(addr => 
+          addr._id === editingAddress._id ? response.data : addr
+        ));
+      } else {
+        // Create new address
+        response = await axios.post(
+          'http://localhost:5000/api/user/addresses',
+          {
+            ...editingAddress,
+            type: activeTab
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        // Add new address to list
+        setAddresses(prev => [...prev, response.data]);
       }
       
+      // Reset form
+      cancelEditing();
       setMessage('Address saved successfully!');
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      console.error('Error saving addresses:', error);
+      console.error('Error saving address:', error);
       setMessage('Error saving address. Please try again.');
     } finally {
       setLoading(false);
     }
   };
   
-  const clearAddress = (type) => {
-    setAddresses(prev => ({
-      ...prev,
-      [type]: {
-        ...prev[type],
-        address: '',
-        landmark: ''
+  const deleteAddress = async (addressId) => {
+    if (window.confirm('Are you sure you want to delete this address?')) {
+      setLoading(true);
+      
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          setMessage('Please log in to manage addresses');
+          setLoading(false);
+          return;
+        }
+        
+        await axios.delete(
+          `http://localhost:5000/api/user/addresses/${addressId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        // Remove address from list
+        setAddresses(prev => prev.filter(addr => addr._id !== addressId));
+        setMessage('Address deleted successfully!');
+        setTimeout(() => setMessage(''), 3000);
+      } catch (error) {
+        console.error('Error deleting address:', error);
+        setMessage('Error deleting address. Please try again.');
+      } finally {
+        setLoading(false);
       }
-    }));
-    
-    // Update in localStorage
-    const updatedAddresses = {
-      ...addresses,
-      [type]: {
-        ...addresses[type],
-        address: '',
-        landmark: ''
-      }
-    };
-    localStorage.setItem('userAddresses', JSON.stringify(updatedAddresses));
-    
-    setMessage(`${addresses[type].label} address cleared!`);
-    setTimeout(() => setMessage(''), 3000);
+    }
   };
   
   const tabIcon = (type) => {
@@ -117,139 +217,171 @@ const AddressPanel = ({ isOpen, onClose }) => {
         
         <div className="address-panel-content">
           {message && (
-            <div className={`address-message ${message.includes('Error') || message.includes('Please enter') ? 'error' : 'success'}`}>
+            <div className={`address-message ${message.includes('Error') || message.includes('Please') ? 'error' : 'success'}`}>
               {message}
             </div>
           )}
           
           <div className="address-tabs">
-            {Object.keys(addresses).map(type => (
+            {['home', 'work', 'other'].map(type => (
               <div 
                 key={type}
                 className={`address-tab ${activeTab === type ? 'active' : ''}`}
                 onClick={() => setActiveTab(type)}
               >
                 <div className="address-tab-icon">{tabIcon(type)}</div>
-                <span>{addresses[type].label}</span>
+                <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
               </div>
             ))}
           </div>
           
           <div className="address-form">
-            {addresses[activeTab].address ? (
-              <>
-                {!editing ? (
-                  <div className="saved-address">
+            {loading && <div className="loading-spinner">Loading...</div>}
+            
+            {!loading && filteredAddresses.length === 0 && !editing && (
+              <div className="no-addresses">
+                <p>No {activeTab} address saved yet.</p>
+                <button 
+                  className="add-new-address-btn"
+                  onClick={() => {
+                    setEditingAddress({
+                      _id: '',
+                      type: activeTab,
+                      formattedAddress: '',
+                      additionalDetails: {
+                        landmark: '',
+                        flatNumber: '',
+                        buildingName: ''
+                      }
+                    });
+                    setEditing(true);
+                  }}
+                >
+                  <FaPlus /> Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Address
+                </button>
+              </div>
+            )}
+            
+            {!loading && filteredAddresses.length > 0 && !editing && (
+              <div className="saved-addresses">
+                {filteredAddresses.map(address => (
+                  <div key={address._id} className="saved-address-item">
                     <div className="saved-address-header">
                       <h4>
-                        {tabIcon(activeTab)}
-                        {addresses[activeTab].label}
+                        {tabIcon(address.type)}
+                        {address.type.charAt(0).toUpperCase() + address.type.slice(1)}
                       </h4>
                       <div className="saved-address-actions">
-                        <button className="edit-address-btn" onClick={toggleEdit}>
+                        <button className="edit-address-btn" onClick={() => startEditing(address)}>
                           <FaEdit />
                         </button>
-                        <button className="delete-address-btn" onClick={() => clearAddress(activeTab)}>
+                        <button className="delete-address-btn" onClick={() => deleteAddress(address._id)}>
                           <FaTrash />
                         </button>
                       </div>
                     </div>
-                    <p className="address-text">{addresses[activeTab].address}</p>
-                    {addresses[activeTab].landmark && (
-                      <p className="landmark-text">Landmark: {addresses[activeTab].landmark}</p>
+                    <p className="address-text">{address.formattedAddress}</p>
+                    {address.additionalDetails?.landmark && (
+                      <p className="landmark-text">Landmark: {address.additionalDetails.landmark}</p>
+                    )}
+                    {address.additionalDetails?.flatNumber && (
+                      <p className="flat-text">Flat/Door No: {address.additionalDetails.flatNumber}</p>
+                    )}
+                    {address.additionalDetails?.buildingName && (
+                      <p className="building-text">Building: {address.additionalDetails.buildingName}</p>
                     )}
                   </div>
-                ) : (
-                  <div className="address-edit-form">
-                    <div className="address-form-group">
-                      <div className="address-input-icon">
-                        <FaMapMarkerAlt />
-                      </div>
-                      <textarea
-                        name="address"
-                        placeholder={`Enter ${addresses[activeTab].label} Address`}
-                        value={addresses[activeTab].address}
-                        onChange={(e) => handleInputChange(e, activeTab)}
-                        className="address-textarea"
-                        rows="3"
-                      />
-                    </div>
-                    
-                    <div className="address-form-group">
-                      <div className="address-input-icon">
-                        <FaMapMarkerAlt />
-                      </div>
-                      <input
-                        type="text"
-                        name="landmark"
-                        placeholder="Landmark / Door / Floor (Optional)"
-                        value={addresses[activeTab].landmark}
-                        onChange={(e) => handleInputChange(e, activeTab)}
-                        className="address-input"
-                      />
-                    </div>
-                    
-                    <div className="address-actions">
-                      <button
-                        className="cancel-edit-btn"
-                        onClick={toggleEdit}
-                      >
-                        Cancel
-                      </button>
-                      <button 
-                        className="save-address-btn" 
-                        onClick={saveAddresses}
-                        disabled={loading}
-                      >
-                        {loading ? 'Saving...' : (
-                          <>
-                            <FaSave /> Save Address
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="add-new-address">
+                ))}
+                
+                <button 
+                  className="add-another-address-btn"
+                  onClick={() => {
+                    setEditingAddress({
+                      _id: '',
+                      type: activeTab,
+                      formattedAddress: '',
+                      additionalDetails: {
+                        landmark: '',
+                        flatNumber: '',
+                        buildingName: ''
+                      }
+                    });
+                    setEditing(true);
+                  }}
+                >
+                  <FaPlus /> Add Another {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Address
+                </button>
+              </div>
+            )}
+            
+            {editing && (
+              <div className="address-edit-form">
                 <div className="address-form-group">
+                  <label>Address</label>
                   <div className="address-input-icon">
                     <FaMapMarkerAlt />
                   </div>
                   <textarea
-                    name="address"
-                    placeholder={`Enter ${addresses[activeTab].label} Address`}
-                    value={addresses[activeTab].address}
-                    onChange={(e) => handleInputChange(e, activeTab)}
+                    name="formattedAddress"
+                    placeholder={`Enter ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Address`}
+                    value={editingAddress.formattedAddress}
+                    onChange={handleInputChange}
                     className="address-textarea"
                     rows="3"
                   />
                 </div>
                 
                 <div className="address-form-group">
-                  <div className="address-input-icon">
-                    <FaMapMarkerAlt />
-                  </div>
+                  <label>Flat/Door Number</label>
+                  <input
+                    type="text"
+                    name="flatNumber"
+                    placeholder="Flat or Door Number"
+                    value={editingAddress.additionalDetails?.flatNumber || ''}
+                    onChange={handleInputChange}
+                    className="address-input"
+                  />
+                </div>
+                
+                <div className="address-form-group">
+                  <label>Building/Society Name</label>
+                  <input
+                    type="text"
+                    name="buildingName"
+                    placeholder="Building or Society Name"
+                    value={editingAddress.additionalDetails?.buildingName || ''}
+                    onChange={handleInputChange}
+                    className="address-input"
+                  />
+                </div>
+                
+                <div className="address-form-group">
+                  <label>Landmark (Optional)</label>
                   <input
                     type="text"
                     name="landmark"
-                    placeholder="Landmark / Door / Floor (Optional)"
-                    value={addresses[activeTab].landmark}
-                    onChange={(e) => handleInputChange(e, activeTab)}
+                    placeholder="Nearby Landmark"
+                    value={editingAddress.additionalDetails?.landmark || ''}
+                    onChange={handleInputChange}
                     className="address-input"
                   />
                 </div>
                 
                 <div className="address-actions">
+                  <button
+                    className="cancel-edit-btn"
+                    onClick={cancelEditing}
+                  >
+                    Cancel
+                  </button>
                   <button 
                     className="save-address-btn" 
-                    onClick={saveAddresses}
+                    onClick={saveAddress}
                     disabled={loading}
                   >
                     {loading ? 'Saving...' : (
                       <>
-                        <FaPlus /> Add Address
+                        <FaSave /> Save Address
                       </>
                     )}
                   </button>
