@@ -644,3 +644,251 @@ button:hover::before {
   box-shadow: 0 2px 4px rgba(168, 45, 45, 0.2);
 }
 
+/* Add to your existing Login.css file */
+
+.delivery-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.motorcycle-icon {
+  font-size: 36px;
+  color: #a82d2d;
+  margin-bottom: 10px;
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.back-link:hover {
+  color: #a82d2d;
+}
+
+.vehicle-selector {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.vehicle-selector label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.vehicle-selector select {
+  padding: 12px 15px;
+  border: none;
+  background-color: #f0f0f0;
+  border-radius: 55px;
+  outline: none;
+  width: 100%;
+  font-size: 16px;
+}
+
+/* Delivery Partner Login Page Enhancements */
+
+/* Fix the delivery logo sizing and spacing */
+.delivery-logo {
+  margin-bottom: 30px;
+}
+
+.delivery-logo .motorcycle-icon {
+  font-size: 42px;
+  margin-bottom: 15px;
+}
+
+.delivery-logo .title {
+  font-size: 2rem;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 5px;
+}
+
+/* Add special subtitle style */
+.delivery-subtitle {
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+/* Improve back link appearance */
+.back-link {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  color: #a82d2d;
+  transform: translateX(-3px);
+}
+
+/* Fix phone input field */
+input[type="tel"] {
+  width: 100%;
+  background-color: #f8f8f8;
+  margin: 15px 0;
+  height: 55px;
+  border-radius: 30px;
+  padding: 0 20px;
+  border: 2px solid #ccc;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  transition: 0.3s ease;
+}
+
+input[type="tel"]:focus {
+  border-color: #cf2727;
+  box-shadow: 0 0 10px rgba(168, 45, 45, 0.2);
+  background-color: #ffffff;
+  outline: none;
+}
+
+input[type="tel"]::placeholder {
+  color: #aaa;
+  font-weight: 500;
+}
+
+/* Enhance vehicle selector styling */
+.vehicle-selector {
+  width: 100%;
+  margin: 15px 0;
+}
+
+.vehicle-selector label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+  text-align: left;
+  font-weight: 500;
+  display: block;
+}
+
+.vehicle-selector select {
+  width: 100%;
+  background-color: #f8f8f8;
+  height: 55px;
+  border-radius: 30px;
+  padding: 0 20px;
+  border: 2px solid #ccc;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  transition: 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 15px) center;
+}
+
+.vehicle-selector select:focus {
+  border-color: #cf2727;
+  box-shadow: 0 0 10px rgba(168, 45, 45, 0.2);
+  background-color: #ffffff;
+  outline: none;
+}
+
+/* Adjust panel content for delivery partner */
+.panel.left-panel .content h3,
+.panel.right-panel .content h3 {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+}
+
+.panel.left-panel .content p,
+.panel.right-panel .content p {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Additional options section styling */
+.additional-options {
+  margin-top: 20px;
+  text-align: center;
+  width: 100%;
+}
+
+.additional-options p {
+  color: #666;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.become-partner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #a82d2d;
+  color: white;
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: none;
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
+}
+
+.become-partner-btn:hover {
+  background-color: #8e2626;
+  transform: translateY(-2px);
+}
+
+/* Error message display */
+.error-message {
+  background-color: rgba(255, 235, 238, 0.8);
+  color: #d32f2f;
+  padding: 10px 15px;
+  border-radius: 25px;
+  margin: 10px 0;
+  font-size: 0.9rem;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(211, 47, 47, 0.3);
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 570px) {
+  .vehicle-selector select,
+  input[type="tel"] {
+    font-size: 0.9rem;
+  }
+  
+  .back-link {
+    top: 10px;
+    left: 10px;
+    font-size: 0.8rem;
+  }
+  
+  .delivery-logo .title {
+    font-size: 1.8rem;
+  }
+}
+
