@@ -1,0 +1,264 @@
+.delivery-dashboard-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.delivery-dashboard-header {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delivery-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.delivery-logo-icon {
+  font-size: 24px;
+  color: #a82d2d;
+}
+
+.delivery-logo h1 {
+  font-size: 20px;
+  margin: 0;
+  color: #333;
+}
+
+.delivery-partner-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.partner-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+}
+
+.partner-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.logout-btn:hover {
+  color: #a82d2d;
+}
+
+.availability-toggle-section {
+  padding: 20px;
+}
+
+.availability-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.availability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.availability-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.status-indicator {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-indicator.online {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-indicator.offline {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.availability-message {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.toggle-availability-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toggle-availability-btn.online {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.toggle-availability-btn.offline {
+  background-color: #28a745;
+  color: white;
+}
+
+.toggle-icon {
+  font-size: 20px;
+}
+
+.dashboard-main-content {
+  padding: 0 20px 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orders-section {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.orders-section h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.no-orders {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.no-orders-icon {
+  font-size: 48px;
+  color: #ddd;
+  margin-bottom: 15px;
+}
+
+.no-orders h3 {
+  margin: 0 0 10px;
+  color: #666;
+  font-size: 18px;
+}
+
+.no-orders p {
+  color: #888;
+  margin: 0;
+  max-width: 400px;
+}
+
+.loading-orders {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #a82d2d;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.earnings-summary {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.earnings-summary h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.earnings-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.earnings-card {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+  text-align: center;
+}
+
+.earnings-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.earnings-label {
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .earnings-cards {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useNavigate, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash, FaMotorcycle } from 'react-icons/fa';
 import axios from "axios";
 import "../styles/Login.css";
 
@@ -272,6 +272,12 @@ const handleSignUp = async (e) => {
               <button type="submit" className="btn" disabled={isLoading}>
                 {isLoading ? "Please wait..." : "Sign in"}
               </button>
+              <div className="additional-options">
+                <p>Looking for work opportunities?</p>
+                <Link to="/delivery/login" className="become-partner-btn">
+                  <FaMotorcycle /> Become a Delivery Partner
+                </Link>
+              </div>
             </form>
             
             <form onSubmit={handleSignUp} className="sign-up-form">

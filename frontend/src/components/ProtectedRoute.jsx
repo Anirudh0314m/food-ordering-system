@@ -1,16 +1,32 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-const ProtectedRoute = ({ children }) => {
-  // Check authentication
+const ProtectedRoute = ({ children, role }) => {
+  // Check if user is authenticated
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   
-  // If not authenticated, redirect to login
+  // Check if user has the required role
+  const userRole = localStorage.getItem('userRole');
+  const hasRequiredRole = role ? userRole === role : true;
+  
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Redirect to appropriate login page based on required role
+    if (role === 'delivery_partner') {
+      return <Navigate to="/delivery/login" />;
+    }
+    return <Navigate to="/login" />;
   }
   
-  // If authenticated, render the children
+  if (role && !hasRequiredRole) {
+    // Redirect user to appropriate dashboard if authenticated but wrong role
+    if (userRole === 'admin') {
+      return <Navigate to="/admin" />;
+    } else if (userRole === 'delivery_partner') {
+      return <Navigate to="/delivery/dashboard" />;
+    }
+    return <Navigate to="/dashboard" />;
+  }
+  
   return children;
 };
 

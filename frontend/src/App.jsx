@@ -10,11 +10,14 @@ import Register from './pages/Register';
 import CartPage from './pages/CartPage';
 import PaymentPage from './pages/PaymentPage';
 import OrdersPage from './pages/OrdersPage';
+import DeliveryPartnerLogin from './pages/DeliveryPartnerLogin';
+import DeliveryDashboard from './pages/DeliveryDashboard';
 import "./styles.css";
 
 import { RestaurantProvider } from './context/RestaurantContext';
 import { CartProvider } from './context/CartContext';
 import ChatBot from './components/ChatBot';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -63,7 +66,7 @@ const App = () => {
   };
 
   // Protected route component
-  const ProtectedRoute = ({ children }) => {
+  const ProtectedRoute = ({ children, role }) => {
     if (loading) {
       return <div className="loading">Loading...</div>;
     }
@@ -127,6 +130,18 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <OrdersPage handleLogout={handleLogout} />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/delivery/login" 
+                  element={<DeliveryPartnerLogin />} 
+                />
+                <Route 
+                  path="/delivery/dashboard" 
+                  element={
+                    <ProtectedRoute role="delivery_partner">
+                      <DeliveryDashboard />
                     </ProtectedRoute>
                   } 
                 />
