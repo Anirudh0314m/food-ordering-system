@@ -650,13 +650,12 @@ button:hover::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px; /* Reduced from 30px */
 }
 
 .motorcycle-icon {
-  font-size: 36px;
-  color: #a82d2d;
-  margin-bottom: 10px;
+  font-size: 32px; /* Reduced from 42px */
+  margin-bottom: 8px; /* Reduced from 15px */
 }
 
 .back-link {
@@ -679,59 +678,60 @@ button:hover::before {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 10px 0;
+  margin: 8px 0; /* Reduced from 15px */
 }
 
 .vehicle-selector label {
-  font-size: 14px;
+  font-size: 0.8rem; /* Reduced from 0.9rem */
   color: #666;
-  margin-bottom: 5px;
+  margin-bottom: 5px; /* Reduced from 8px */
   text-align: left;
 }
 
 .vehicle-selector select {
-  padding: 12px 15px;
+  padding: 0 15px; /* Reduced from 20px */
   border: none;
   background-color: #f0f0f0;
   border-radius: 55px;
   outline: none;
   width: 100%;
-  font-size: 16px;
+  font-size: 0.9rem; /* Reduced from 1.1rem */
+  height: 45px; /* Reduced from 55px */
 }
 
 /* Delivery Partner Login Page Enhancements */
 
 /* Fix the delivery logo sizing and spacing */
 .delivery-logo {
-  margin-bottom: 30px;
+  margin-bottom: 15px; /* Reduced from 30px */
 }
 
 .delivery-logo .motorcycle-icon {
-  font-size: 42px;
-  margin-bottom: 15px;
+  font-size: 3px; /* Reduced from 42px */
+  margin-bottom: 8px; /* Reduced from 15px */
 }
 
 .delivery-logo .title {
-  font-size: 2rem;
+  font-size: 1.6rem; /* Reduced from 2rem */
   text-align: center;
   line-height: 1.2;
-  margin-bottom: 5px;
+  margin-bottom: 3px; /* Reduced from 5px */
 }
 
 /* Add special subtitle style */
 .delivery-subtitle {
   color: #666;
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
+  margin-bottom: 10px; /* Reduced from 20px */
+  font-size: 0.8rem; /* Reduced from 0.9rem */
 }
 
 /* Improve back link appearance */
 .back-link {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  font-size: 0.85rem;
+  position: fixed;
+  top: 10px; /* Reduced from 15px */
+  left: 10px; /* Reduced from 15px */
+  font-size: 0.75rem; /* Reduced from 0.85rem */
   color: #666;
   display: flex;
   align-items: center;
@@ -749,12 +749,12 @@ button:hover::before {
 input[type="tel"] {
   width: 100%;
   background-color: #f8f8f8;
-  margin: 15px 0;
-  height: 55px;
+  margin: 8px 0; /* Reduced from 15px */
+  height: 45px; /* Reduced from 55px */
   border-radius: 30px;
-  padding: 0 20px;
+  padding: 0 15px; /* Reduced from 20px */
   border: 2px solid #ccc;
-  font-size: 1.1rem;
+  font-size: 0.9rem; /* Reduced from 1.1rem */
   font-weight: 600;
   color: #333;
   transition: 0.3s ease;
@@ -775,13 +775,13 @@ input[type="tel"]::placeholder {
 /* Enhance vehicle selector styling */
 .vehicle-selector {
   width: 100%;
-  margin: 15px 0;
+  margin: 8px 0; /* Reduced from 15px */
 }
 
 .vehicle-selector label {
-  font-size: 0.9rem;
+  font-size: 0.8rem; /* Reduced from 0.9rem */
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 5px; /* Reduced from 8px */
   text-align: left;
   font-weight: 500;
   display: block;
@@ -790,11 +790,11 @@ input[type="tel"]::placeholder {
 .vehicle-selector select {
   width: 100%;
   background-color: #f8f8f8;
-  height: 55px;
+  height: 45px; /* Reduced from 55px */
   border-radius: 30px;
-  padding: 0 20px;
+  padding: 0 15px; /* Reduced from 20px */
   border: 2px solid #ccc;
-  font-size: 1.1rem;
+  font-size: 0.9rem; /* Reduced from 1.1rem */
   font-weight: 600;
   color: #333;
   transition: 0.3s ease;
@@ -814,14 +814,15 @@ input[type="tel"]::placeholder {
 /* Adjust panel content for delivery partner */
 .panel.left-panel .content h3,
 .panel.right-panel .content h3 {
-  font-size: 1.6rem;
+  font-size: 1.4rem; /* Reduced from 1.6rem */
   margin-bottom: 10px;
 }
 
 .panel.left-panel .content p,
 .panel.right-panel .content p {
-  font-size: 1rem;
+  font-size: 0.9rem; /* Reduced from 1rem */
   line-height: 1.4;
+  padding: 0.5rem 0; /* Reduced from 0.7rem */
 }
 
 /* Additional options section styling */
@@ -845,14 +846,14 @@ input[type="tel"]::placeholder {
   background-color: #a82d2d;
   color: white;
   text-decoration: none;
-  padding: 10px 16px;
+  padding: 8px 14px; /* Reduced from 10px 16px */
   border-radius: 30px;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem; /* Reduced from 0.9rem */
   transition: all 0.3s ease;
   border: none;
   width: 100%;
-  max-width: 250px;
+  max-width: 200px; /* Reduced from 250px */
   margin: 0 auto;
 }
 
@@ -865,10 +866,10 @@ input[type="tel"]::placeholder {
 .error-message {
   background-color: rgba(255, 235, 238, 0.8);
   color: #d32f2f;
-  padding: 10px 15px;
+  padding: 8px 12px; /* Reduced from 10px 15px */
   border-radius: 25px;
-  margin: 10px 0;
-  font-size: 0.9rem;
+  margin: 8px 0; /* Reduced from 10px */
+  font-size: 0.8rem; /* Reduced from 0.9rem */
   width: 100%;
   text-align: center;
   border: 1px solid rgba(211, 47, 47, 0.3);
@@ -890,5 +891,117 @@ input[type="tel"]::placeholder {
   .delivery-logo .title {
     font-size: 1.8rem;
   }
+}
+
+/* Updated sizing for delivery partner login page */
+
+/* Adjust input fields to be more compact */
+.delivery-logo {
+  margin-bottom: 15px; /* Reduced from 30px */
+}
+
+.delivery-logo .motorcycle-icon {
+  font-size: 20px; /* Reduced from 42px */
+  margin-bottom: 8px; /* Reduced from 15px */
+}
+
+.delivery-logo .title {
+  font-size: 1rem; /* Reduced from 2rem */
+  margin-bottom: 3px; /* Reduced from 5px */
+}
+
+.delivery-subtitle {
+  font-size: 0.8rem; /* Reduced from 0.9rem */
+  margin-bottom: 10px; /* Reduced from 20px */
+}
+
+/* Make input fields smaller */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"] {
+  height: 45px; /* Reduced from 55px */
+  margin: 8px 0; /* Reduced from 15px */
+  font-size: 0.9rem; /* Reduced from 1.1rem */
+  padding: 0 15px; /* Reduced from 20px */
+}
+
+/* Adjust vehicle selector */
+.vehicle-selector {
+  margin: 6px 0; /* Reduced from 15px */
+}
+
+.vehicle-selector label {
+  font-size: 0.8rem; /* Reduced from 0.9rem */
+  margin-bottom: 5px; /* Reduced from 8px */
+}
+
+.vehicle-selector select {
+  height: 45px; /* Reduced from 55px */
+  font-size: 0.9rem; /* Reduced from 1.1rem */
+  padding: 0 15px; /* Reduced from 20px */
+}
+
+/* Smaller buttons */
+.btn, button {
+  height: 40px; /* Reduced from 49px */
+  width: 130px; /* Reduced from 150px */
+  font-size: 0.8rem; /* Smaller font */
+  margin: 8px 0; /* Reduced from 10px */
+}
+
+/* Adjust error message */
+.error-message {
+  padding: 8px 12px; /* Reduced from 10px 15px */
+  margin: 8px 0; /* Reduced from 10px */
+  font-size: 0.8rem; /* Reduced from 0.9rem */
+}
+
+/* Adjust back link position */
+.back-link {
+  top: 10px;
+  left: 10px;
+  font-size: 0.75rem;
+}
+
+/* Reduce form padding */
+form.sign-in-form, 
+form.sign-up-form {
+  padding: 0 3rem; /* Reduced from 5rem */
+}
+
+/* Adjust become partner button */
+.become-partner-btn {
+  padding: 8px 14px; /* Reduced from 10px 16px */
+  font-size: 0.8rem; /* Reduced from 0.9rem */
+  max-width: 200px; /* Reduced from 250px */
+}
+
+/* Adjust panel content */
+.panel h3 {
+  font-size: 1.4rem; /* Reduced from 1.6rem */
+}
+
+.panel p {
+  font-size: 0.9rem; /* Reduced from 1rem */
+  padding: 0.5rem 0; /* Reduced from 0.7rem */
+}
+
+/* Specifically for delivery login container */
+.sign-in-form, .sign-up-form {
+  max-height: 440px; /* Give some breathing room in container */
+  overflow-y: auto; /* Add scrolling if needed */
+}
+
+/* Add a subtle scrollbar styling */
+.sign-in-form::-webkit-scrollbar,
+.sign-up-form::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sign-in-form::-webkit-scrollbar-thumb,
+.sign-up-form::-webkit-scrollbar-thumb {
+  background: rgba(168, 45, 45, 0.5);
+  border-radius: 10px;
 }
 
