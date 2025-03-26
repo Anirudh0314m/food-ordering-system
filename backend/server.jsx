@@ -19,6 +19,7 @@ const paymentRoutes = require("./routes/paymentRoutes.jsx");
 const menuItemRoutes = require("./routes/menuItems.jsx"); // Changed to match file name
 const dialogflowRouter = require('./routes/dialogFlow');
 const addressRoutes = require('./routes/addressRoutes.jsx');
+const deliveryPartnerRoutes = require('./routes/deliveryPartnerRoutes.jsx');
 
 
 
@@ -36,6 +37,12 @@ app.use(express.json());
 // Debug middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Add this debugging middleware to see all requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
@@ -73,10 +80,16 @@ app.use('/api/dialogflow', dialogflowRouter);
 app.use('/api/user/addresses', addressRoutes);
 // Add this line with your other routes
 app.use('/api/stock', require('./routes/stockRoutes.jsx'));
+app.use('/api/auth/delivery-partner', deliveryPartnerRoutes);
 
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working' });
+});
+
+// Add a test endpoint directly in server.jsx to verify Express is working
+app.get('/test', (req, res) => {
+  res.json({ message: 'Express server is working' });
 });
 
 // Error handling middleware
