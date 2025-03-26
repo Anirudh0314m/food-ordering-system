@@ -1,32 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { FaMotorcycle, FaMapMarkerAlt, FaPhone, FaDirections, 
-         FaClipboardList, FaStar, FaWallet } from 'react-icons/fa';
-import DeliveryNavbar from '../components/DeliveryNavbar';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaMotorcycle, FaMapMarkerAlt, FaPhoneAlt, FaUser, 
+         FaWallet, FaClipboardList, FaChartLine, FaSignOutAlt } from 'react-icons/fa';
 import '../styles/DeliveryDashboard.css';
 
 const DeliveryDashboard = ({ handleLogout }) => {
+  const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
   const [partnerName, setPartnerName] = useState('');
-  const [currentLocation, setCurrentLocation] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Stats
-  const [todayOrders, setTodayOrders] = useState(0);
-  const [todayEarnings, setTodayEarnings] = useState(0);
-  const [rating, setRating] = useState(5.0);
-  
-  // Orders
   const [currentOrder, setCurrentOrder] = useState(null);
   const [newOrders, setNewOrders] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
-  
-  const navigate = useNavigate();
+  const [todayEarnings, setTodayEarnings] = useState(0);
+  const [todayOrders, setTodayOrders] = useState(0);
+  const [totalRating, setTotalRating] = useState(4.8);
   
   useEffect(() => {
     // Check authentication
-    const token = localStorage.getItem('deliveryPartnerToken') || localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken');
     const role = localStorage.getItem('userRole');
     
     if (!token || role !== 'delivery_partner') {
@@ -34,59 +24,42 @@ const DeliveryDashboard = ({ handleLogout }) => {
       return;
     }
     
-    // Get partner name from localStorage
-    const name = localStorage.getItem('partnerName');
-    setPartnerName(name || 'Delivery Partner');
+    // Load partner name
+    const name = localStorage.getItem('partnerName') || 'Delivery Partner';
+    setPartnerName(name);
     
-    // Get current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // For now just save coordinates, in a real app we would reverse geocode
-          const coords = `${position.coords.latitude.toFixed(3)}, ${position.coords.longitude.toFixed(3)}`;
-          setCurrentLocation(coords);
-          
-          // In a real app, we would send this location to the backend
-          // updatePartnerLocation(position.coords.latitude, position.coords.longitude);
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          setCurrentLocation('Location unavailable');
-        }
-      );
-    }
+    // Load online status
+    const savedStatus = localStorage.getItem('isOnline') === 'true';
+    setIsOnline(savedStatus);
     
-    // Load mock data for demo - in real app these would come from API
-    loadMockData();
-    
-    // In a real app, we would fetch data from API
-    // fetchDashboardData();
-    
-    setIsLoading(false);
+    // Load dummy data
+    loadDummyData();
   }, [navigate]);
   
-  const loadMockData = () => {
+  const loadDummyData = () => {
     // Mock current order
     setCurrentOrder({
       id: 'ORD12345',
+      status: 'picked_up',
       restaurant: {
         name: 'Burger Palace',
-        address: '123 Main St, City',
-        image: '/img/burger-restaurant.jpg'
+        address: '123 Main St, Cityville',
+        image: '/img/burger-restaurant.jpg',
+        phone: '987-654-3210'
       },
       customer: {
-        name: 'John Doe',
-        address: '456 Oak Ave, City',
-        phone: '+1234567890'
+        name: 'John Smith',
+        address: '456 Elm St, Townsville',
+        phone: '123-456-7890'
       },
       items: [
-        { name: 'Cheeseburger', quantity: 2 },
-        { name: 'Fries', quantity: 1 },
-        { name: 'Soda', quantity: 2 }
+        { name: 'Double Cheeseburger', quantity: 1, price: 180 },
+        { name: 'French Fries (L)', quantity: 1, price: 90 },
+        { name: 'Chocolate Milkshake', quantity: 2, price: 120 }
       ],
-      status: 'picked_up',
-      amount: 450,
-      deliveryFee: 50
+      total: 510,
+      deliveryFee: 50,
+      paymentMethod: 'Cash on Delivery'
     });
     
     // Mock new orders
@@ -94,254 +67,308 @@ const DeliveryDashboard = ({ handleLogout }) => {
       {
         id: 'ORD67890',
         restaurant: {
-          name: 'Pizza Corner',
-          address: '789 Pine St, City'
+          name: 'Pizza Express',
+          address: '789 Oak St, Cityville',
+          distance: '2.5 km'
         },
-        distance: 2.3,
+        customer: {
+          address: '101 Pine St, Townsville',
+          distance: '3.2 km'
+        },
         deliveryFee: 60
       },
       {
         id: 'ORD54321',
         restaurant: {
-          name: 'Taco Spot',
-          address: '321 Elm St, City'
+          name: 'Taco Haven',
+          address: '246 Maple Ave, Cityville',
+          distance: '1.8 km'
         },
-        distance: 3.1,
-        deliveryFee: 75
+        customer: {
+          address: '357 Cedar Rd, Townsville',
+          distance: '2.4 km'
+        },
+        deliveryFee: 45
       }
     ]);
     
-    // Mock recent orders
-    setRecentOrders([
-      {
-        id: 'ORD11223',
-        restaurant: 'Chinese Wok',
-        time: '2 hours ago',
-        amount: 350,
-        earnings: 45
-      },
-      {
-        id: 'ORD33445',
-        restaurant: 'Subway',
-        time: '4 hours ago',
-        amount: 250,
-        earnings: 35
-      }
-    ]);
-    
-    // Mock stats
-    setTodayOrders(3);
-    setTodayEarnings(130);
-    setRating(4.8);
+    // Set dummy stats
+    setTodayEarnings(350);
+    setTodayOrders(5);
   };
   
   const toggleOnlineStatus = () => {
-    setIsOnline(!isOnline);
+    const newStatus = !isOnline;
+    setIsOnline(newStatus);
+    localStorage.setItem('isOnline', newStatus.toString());
     
-    // In a real app, update status in the backend
-    // updatePartnerStatus(!isOnline);
-    
-    console.log(`Partner is now ${!isOnline ? 'ONLINE' : 'OFFLINE'}`);
-  };
-  
-  const updateOrderStatus = (orderId, status) => {
-    // In a real app, update order status in the backend
-    console.log(`Updating order ${orderId} to ${status}`);
-    
-    // For demo purposes, update current order status
-    if (currentOrder && currentOrder.id === orderId) {
-      setCurrentOrder({
-        ...currentOrder,
-        status
-      });
-      
-      // If order is delivered, move it to recent orders
-      if (status === 'delivered') {
-        setRecentOrders([
-          {
-            id: currentOrder.id,
-            restaurant: currentOrder.restaurant.name,
-            time: 'Just now',
-            amount: currentOrder.amount,
-            earnings: currentOrder.deliveryFee
-          },
-          ...recentOrders
-        ]);
-        
-        // Update stats
-        setTodayOrders(todayOrders + 1);
-        setTodayEarnings(todayEarnings + currentOrder.deliveryFee);
-        
-        // Clear current order
-        setCurrentOrder(null);
-      }
-    }
+    // In a real app, you'd update this with the backend
+    console.log(`Status updated to: ${newStatus ? 'Online' : 'Offline'}`);
   };
   
   const acceptOrder = (orderId) => {
-    // Find the order in new orders
-    const orderToAccept = newOrders.find(order => order.id === orderId);
+    console.log(`Accepted order: ${orderId}`);
+    setNewOrders(newOrders.filter(order => order.id !== orderId));
     
-    if (orderToAccept) {
-      // Remove from new orders
-      setNewOrders(newOrders.filter(order => order.id !== orderId));
-      
-      // In a real app, accept order in the backend
-      console.log(`Accepting order ${orderId}`);
-      
-      // For demo, set as current order if we don't have one
-      if (!currentOrder) {
-        // Create a more complete order object based on the newOrder item
-        setCurrentOrder({
-          id: orderToAccept.id,
-          restaurant: {
-            name: orderToAccept.restaurant.name,
-            address: orderToAccept.restaurant.address,
-            image: '/img/restaurant-placeholder.jpg'
-          },
-          customer: {
-            name: 'Customer Name',
-            address: `${orderToAccept.distance} km away from restaurant`,
-            phone: '+1234567890'
-          },
-          status: 'accepted',
-          amount: orderToAccept.deliveryFee * 4, // Just for demo
-          deliveryFee: orderToAccept.deliveryFee
-        });
-      }
-    }
+    // In a real app, you'd call your API to accept the order
+    alert(`Order ${orderId} accepted!`);
   };
   
   const rejectOrder = (orderId) => {
-    // Remove from new orders
+    console.log(`Rejected order: ${orderId}`);
     setNewOrders(newOrders.filter(order => order.id !== orderId));
-    
-    // In a real app, reject order in the backend
-    console.log(`Rejecting order ${orderId}`);
   };
   
-  const openMap = () => {
-    // In a real app, open maps app with directions
-    console.log('Opening maps for directions');
+  const updateOrderStatus = (status) => {
+    if (!currentOrder) return;
     
-    // For demo, just alert
-    alert('This would open maps with directions to the destination');
+    console.log(`Updating order ${currentOrder.id} to ${status}`);
+    
+    // In a real app, you'd call your API to update the order status
+    setCurrentOrder({
+      ...currentOrder,
+      status
+    });
+    
+    // If delivered, clear current order and update stats
+    if (status === 'delivered') {
+      setTimeout(() => {
+        setTodayEarnings(todayEarnings + currentOrder.deliveryFee);
+        setTodayOrders(todayOrders + 1);
+        setCurrentOrder(null);
+        alert('Order marked as delivered!');
+      }, 1000);
+    }
   };
-  
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
-  
+
   return (
-    <div className="delivery-dashboard-container">
-      <DeliveryNavbar 
-        isOnline={isOnline}
-        toggleOnlineStatus={toggleOnlineStatus}
-        partnerName={partnerName}
-        currentLocation={currentLocation}
-        handleLogout={handleLogout}
-      />
-      
-      <div className="delivery-dashboard">
-        <div className="status-card">
-          <h2>Current Status</h2>
-          <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
-            {isOnline ? 'Available for Orders' : 'You are Offline'}
-          </div>
-          <div className="stats-summary">
-            <div className="stat">
-              <span className="stat-value">{todayOrders}</span>
-              <span className="stat-label">Today's Orders</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">₹{todayEarnings}</span>
-              <span className="stat-label">Today's Earnings</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">{rating}</span>
-              <span className="stat-label">Rating</span>
-            </div>
-          </div>
+    <div className="dashboard-container delivery-dashboard">
+      {/* Header/Navbar - styled like your customer dashboard */}
+      <header className="dashboard-header">
+        <div className="logo">
+          <FaMotorcycle />
+          <h1>FastFood Delivery Partner</h1>
         </div>
         
-        {currentOrder && (
-          <div className="current-order-card">
-            <h2>Current Order</h2>
-            <div className="order-details">
-              <div className="restaurant-info">
-                <img src={currentOrder.restaurant.image || '/img/restaurant-placeholder.jpg'} alt={currentOrder.restaurant.name} />
-                <div>
-                  <h3>{currentOrder.restaurant.name}</h3>
-                  <p>{currentOrder.restaurant.address}</p>
-                </div>
-              </div>
-              
-              <div className="order-items">
-                <h4>Order Items:</h4>
-                <ul>
-                  {currentOrder.items && currentOrder.items.map((item, index) => (
-                    <li key={index}>
-                      {item.quantity}x {item.name}
-                    </li>
-                  ))}
-                </ul>
-                <p className="order-amount">
-                  <strong>Order Total:</strong> ₹{currentOrder.amount}
-                </p>
-                <p className="delivery-fee">
-                  <strong>Your Earnings:</strong> ₹{currentOrder.deliveryFee}
-                </p>
-              </div>
-              
-              <div className="customer-info">
-                <h4>Deliver To:</h4>
-                <h3>{currentOrder.customer.name}</h3>
-                <p>{currentOrder.customer.address}</p>
-                <a href={`tel:${currentOrder.customer.phone}`} className="contact-btn">
-                  <FaPhone /> Call Customer
-                </a>
-              </div>
-              
-              <div className="order-actions">
-                {currentOrder.status === 'accepted' && (
-                  <button className="action-btn pickup" onClick={() => updateOrderStatus(currentOrder.id, 'picked_up')}>
-                    Mark as Picked Up
-                  </button>
-                )}
-                
-                {currentOrder.status === 'picked_up' && (
-                  <button className="action-btn deliver" onClick={() => updateOrderStatus(currentOrder.id, 'delivered')}>
-                    Mark as Delivered
-                  </button>
-                )}
-                
-                <button className="action-btn map" onClick={() => openMap()}>
-                  <FaDirections /> Navigate
-                </button>
-              </div>
+        {/* Status Toggle Button - Primary functional element for delivery partners */}
+        <div className="status-toggle-container">
+          <label className="status-toggle">
+            <input 
+              type="checkbox" 
+              checked={isOnline}
+              onChange={toggleOnlineStatus}
+            />
+            <span className="toggle-slider"></span>
+          </label>
+          <span className={`status-text ${isOnline ? 'online' : 'offline'}`}>
+            {isOnline ? 'Online' : 'Offline'}
+          </span>
+        </div>
+        
+        <nav className="dashboard-nav">
+          <Link to="/delivery/dashboard" className="nav-item active">
+            <FaUser /> Home
+          </Link>
+          <Link to="/delivery/orders" className="nav-item">
+            <FaClipboardList /> Orders
+          </Link>
+          <Link to="/delivery/earnings" className="nav-item">
+            <FaWallet /> Earnings
+          </Link>
+          <Link to="/delivery/account" className="nav-item">
+            <FaChartLine /> Account
+          </Link>
+        </nav>
+        
+        <div className="user-menu">
+          <span className="user-name">{partnerName}</span>
+          <button onClick={handleLogout} className="logout-button">
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="dashboard-content">
+        {/* Top Stats Cards - similar to customer dashboard stats */}
+        <section className="stats-section">
+          <div className="stats-card earnings-card">
+            <div className="stats-icon">
+              <FaWallet />
+            </div>
+            <div className="stats-info">
+              <h3>Today's Earnings</h3>
+              <p className="stats-value">₹{todayEarnings}</p>
             </div>
           </div>
+          
+          <div className="stats-card orders-card">
+            <div className="stats-icon">
+              <FaClipboardList />
+            </div>
+            <div className="stats-info">
+              <h3>Completed Orders</h3>
+              <p className="stats-value">{todayOrders}</p>
+            </div>
+          </div>
+          
+          <div className="stats-card rating-card">
+            <div className="stats-icon">
+              <FaChartLine />
+            </div>
+            <div className="stats-info">
+              <h3>Your Rating</h3>
+              <p className="stats-value">{totalRating}/5.0</p>
+            </div>
+          </div>
+        </section>
+        
+        {/* Current Active Order */}
+        {currentOrder && (
+          <section className="active-order-section">
+            <h2>Current Delivery</h2>
+            <div className="active-order-card">
+              <div className="order-header">
+                <h3>Order #{currentOrder.id.slice(-5)}</h3>
+                <span className={`order-status ${currentOrder.status}`}>
+                  {currentOrder.status === 'accepted' ? 'Accepted - Go to Restaurant' : 
+                   currentOrder.status === 'picked_up' ? 'Picked Up - Delivering' : 
+                   'Delivered'}
+                </span>
+              </div>
+              
+              <div className="order-details">
+                <div className="location-details">
+                  <div className="restaurant-details">
+                    <h4>Pick Up From:</h4>
+                    <div className="location-card">
+                      <div className="location-icon restaurant">
+                        <FaMapMarkerAlt />
+                      </div>
+                      <div className="location-info">
+                        <h5>{currentOrder.restaurant.name}</h5>
+                        <p>{currentOrder.restaurant.address}</p>
+                        <a href={`tel:${currentOrder.restaurant.phone}`} className="contact-button">
+                          <FaPhoneAlt /> Call Restaurant
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="customer-details">
+                    <h4>Deliver To:</h4>
+                    <div className="location-card">
+                      <div className="location-icon customer">
+                        <FaMapMarkerAlt />
+                      </div>
+                      <div className="location-info">
+                        <h5>{currentOrder.customer.name}</h5>
+                        <p>{currentOrder.customer.address}</p>
+                        <a href={`tel:${currentOrder.customer.phone}`} className="contact-button">
+                          <FaPhoneAlt /> Call Customer
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="order-summary">
+                  <h4>Order Summary</h4>
+                  <div className="order-items">
+                    {currentOrder.items.map((item, index) => (
+                      <div key={index} className="order-item">
+                        <span className="item-quantity">{item.quantity}x</span>
+                        <span className="item-name">{item.name}</span>
+                        <span className="item-price">₹{item.price * item.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="order-total">
+                    <div className="total-row">
+                      <span>Order Total:</span>
+                      <span>₹{currentOrder.total}</span>
+                    </div>
+                    <div className="total-row delivery-fee">
+                      <span>Your Earning:</span>
+                      <span>₹{currentOrder.deliveryFee}</span>
+                    </div>
+                    <div className="total-row payment-method">
+                      <span>Payment:</span>
+                      <span>{currentOrder.paymentMethod}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="order-actions">
+                  {currentOrder.status === 'accepted' && (
+                    <button 
+                      onClick={() => updateOrderStatus('picked_up')} 
+                      className="action-button pickup"
+                    >
+                      Mark as Picked Up
+                    </button>
+                  )}
+                  
+                  {currentOrder.status === 'picked_up' && (
+                    <button 
+                      onClick={() => updateOrderStatus('delivered')} 
+                      className="action-button deliver"
+                    >
+                      Mark as Delivered
+                    </button>
+                  )}
+                  
+                  <button className="action-button navigate">
+                    Navigate
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
         )}
         
-        <div className="dashboard-section">
-          <h2>New Order Requests</h2>
+        {/* New Order Requests */}
+        <section className="new-orders-section">
+          <h2>New Delivery Requests</h2>
+          
           {newOrders.length === 0 ? (
-            <p className="no-orders">No new orders available at the moment</p>
+            <div className="no-orders-message">
+              <p>No new delivery requests available at the moment.</p>
+              {!isOnline && (
+                <p>Go online to receive delivery requests!</p>
+              )}
+            </div>
           ) : (
-            <div className="orders-list">
+            <div className="orders-grid">
               {newOrders.map(order => (
-                <div key={order.id} className="order-item">
-                  <div className="order-header">
+                <div key={order.id} className="order-request-card">
+                  <div className="order-info">
                     <h3>{order.restaurant.name}</h3>
-                    <span className="distance">{order.distance} km away</span>
+                    <p className="restaurant-distance">
+                      <FaMapMarkerAlt /> {order.restaurant.distance} from you
+                    </p>
+                    <p className="restaurant-address">{order.restaurant.address}</p>
+                    
+                    <div className="delivery-details">
+                      <p className="delivery-distance">
+                        <FaMapMarkerAlt /> {order.customer.distance} total distance
+                      </p>
+                      <p className="delivery-fee">₹{order.deliveryFee} earning</p>
+                    </div>
                   </div>
-                  <p className="order-address">{order.restaurant.address}</p>
-                  <p className="order-amount">₹{order.deliveryFee} delivery fee</p>
-                  <div className="order-actions">
-                    <button className="accept-btn" onClick={() => acceptOrder(order.id)}>
+                  
+                  <div className="request-actions">
+                    <button 
+                      onClick={() => acceptOrder(order.id)}
+                      className="accept-button"
+                    >
                       Accept
                     </button>
-                    <button className="reject-btn" onClick={() => rejectOrder(order.id)}>
+                    <button 
+                      onClick={() => rejectOrder(order.id)}
+                      className="reject-button"
+                    >
                       Reject
                     </button>
                   </div>
@@ -349,26 +376,8 @@ const DeliveryDashboard = ({ handleLogout }) => {
               ))}
             </div>
           )}
-        </div>
-        
-        <div className="dashboard-section">
-          <h2>Recent Deliveries</h2>
-          {recentOrders.length === 0 ? (
-            <p className="no-orders">No recent deliveries</p>
-          ) : (
-            <div className="recent-deliveries">
-              {recentOrders.map((order, index) => (
-                <div key={index} className="recent-order">
-                  <div className="restaurant-name">{order.restaurant}</div>
-                  <div className="order-time">{order.time}</div>
-                  <div className="order-amount">₹{order.amount}</div>
-                  <div className="earning-amount">+₹{order.earnings}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 };
