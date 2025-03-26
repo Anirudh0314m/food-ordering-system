@@ -2,31 +2,25 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, role }) => {
-  // Check if user is authenticated
+  // Get auth state from localStorage
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-  
-  // Check if user has the required role
   const userRole = localStorage.getItem('userRole');
-  const hasRequiredRole = role ? userRole === role : true;
+  
+  console.log('Protected route check:', { isAuthenticated, userRole, requiredRole: role });
   
   if (!isAuthenticated) {
-    // Redirect to appropriate login page based on required role
-    if (role === 'delivery_partner') {
-      return <Navigate to="/delivery/login" />;
-    }
-    return <Navigate to="/login" />;
+    // Not authenticated at all
+    return <Navigate to="/login" replace />;
   }
   
-  if (role && !hasRequiredRole) {
-    // Redirect user to appropriate dashboard if authenticated but wrong role
-    if (userRole === 'admin') {
-      return <Navigate to="/admin" />;
-    } else if (userRole === 'delivery_partner') {
-      return <Navigate to="/delivery/dashboard" />;
-    }
-    return <Navigate to="/dashboard" />;
+  // If a specific role is required, check it
+  if (role && userRole !== role) {
+    // User is authenticated but with wrong role
+    console.log('Role mismatch, redirecting');
+    return <Navigate to={role === 'delivery_partner' ? '/delivery/login' : '/login'} replace />;
   }
   
+  // User is authenticated and has the right role (or no specific role required)
   return children;
 };
 

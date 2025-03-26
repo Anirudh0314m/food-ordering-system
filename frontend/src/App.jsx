@@ -21,137 +21,148 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null); // Add this line for role tracking
   const [loading, setLoading] = useState(true);
 
-  // Add this helper function at the top level of your App component
+  // Improved checkAuthentication function that returns role info
   const checkAuthentication = () => {
-    const token = localStorage.getItem('foodAppToken');
-    const isAuth = localStorage.getItem('isAuthenticated');
-    const userRole = localStorage.getItem('userRole');
+    const token = localStorage.getItem('foodAppToken') || localStorage.getItem('authToken');
+    const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+    const role = localStorage.getItem('userRole');
     
-    console.log('Auth check:', { isAuth, userRole }); // For debugging
+    console.log('Auth check:', { isAuth, role, hasToken: !!token });
     
-    if (isAuth === 'true') {
-      return true;
+    if (isAuth && token) {
+      return { isAuthenticated: true, userRole: role };
     } else {
       // Clear any invalid tokens
       localStorage.removeItem('foodAppToken');
+      localStorage.removeItem('authToken');
       localStorage.removeItem('foodAppAdminToken');
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('userRole');
-      return false;
+      return { isAuthenticated: false, userRole: null };
     }
   };
 
   // Check if user is logged in on component mount
   useEffect(() => {
-    const isAuth = checkAuthentication();
-    setIsAuthenticated(isAuth);
+    const authState = checkAuthentication();
+    setIsAuthenticated(authState.isAuthenticated);
+    setUserRole(authState.userRole);
     setLoading(false);
   }, []);
 
-  // Update the handleLogout function
+  // Updated handleLogout function
   const handleLogout = () => {
-    // Clear all authentication tokens
     localStorage.removeItem('foodAppToken');
+    localStorage.removeItem('authToken');
     localStorage.removeItem('foodAppAdminToken');
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
     
-    // Update authentication state
     setIsAuthenticated(false);
+    setUserRole(null);
     
-    // Redirect to login page
     window.location.href = '/login';
-  };
-
-  // Protected route component
-  const ProtectedRoute = ({ children, role }) => {
-    if (loading) {
-      return <div className="loading">Loading...</div>;
-    }
-    
-    if (!isAuthenticated) {
-      return <Navigate to="/login" replace />;
-    }
-    
-    return children;
   };
 
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
 
+  // The rest of your component with updated routes...
   return (
     <CartProvider>
       <RestaurantProvider>
         <Router>
           <div className="App">
-            {!loading && (
-              <Routes>
-                <Route 
-                  path="/" 
-                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
-                />
-                <Route 
-                  path="/login" 
-                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} 
-                />
-                <Route 
-                  path="/register" 
-                  element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register setIsAuthenticated={setIsAuthenticated} />} 
-                />
-                <Route 
-                  path="/dashboard" 
-                  element={isAuthenticated ? <Dashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/admin" 
-                  element={isAuthenticated ? <AdminDashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/restaurants/category/:id" 
-                  element={isAuthenticated ? <RestaurantsByCategory handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/restaurants/:id" 
-                  element={isAuthenticated ? <RestaurantDetails handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/cart" 
-                  element={isAuthenticated ? <CartPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/payment" 
-                  element={isAuthenticated ? <PaymentPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/orders" 
-                  element={
-                    <ProtectedRoute>
-                      <OrdersPage handleLogout={handleLogout} />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/delivery/login" 
-                  element={<DeliveryPartnerLogin />} 
-                />
-                <Route 
-                  path="/delivery/dashboard" 
-                  element={
-                    <ProtectedRoute role="delivery_partner">
-                      <DeliveryDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="*" 
-                  element={<Navigate to="/" replace />} 
-                />
-              </Routes>
-            )}
-            <ChatBot /> {/* Make sure this is here */}
+            <Routes>
+              {/* Main routes */}
+              <Route 
+                path="/" 
+                element={
+                  isAuthenticated ? 
+                    (userRole === 'delivery_partner' ? 
+                      <Navigate to="/delivery/dashboard" /> : 
+                      <Navigate to="/dashboard" />
+                    ) : 
+                    <Login />
+                } 
+              />
+              
+              {/* Regular user routes */}
+              <Route 
+                path="/login" 
+                element={
+                  isAuthenticated && userRole !== 'delivery_partner' ? 
+                    <Navigate to="/dashboard" /> : 
+                    <Login />
+                } 
+              />
+              
+              {/* Delivery partner specific routes */}
+              <Route 
+                path="/delivery/login" 
+                element={
+                  isAuthenticated && userRole === 'delivery_partner' ? 
+                    <Navigate to="/delivery/dashboard" /> : 
+                    <DeliveryPartnerLogin />
+                } 
+              />
+              
+              <Route 
+                path="/delivery/dashboard" 
+                element={
+                  <ProtectedRoute role="delivery_partner">
+                    <DeliveryDashboard handleLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Other routes remain the same */}
+              <Route 
+                path="/register" 
+                element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register setIsAuthenticated={setIsAuthenticated} />} 
+              />
+              <Route 
+                path="/dashboard" 
+                element={isAuthenticated ? <Dashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/admin" 
+                element={isAuthenticated ? <AdminDashboard handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/restaurants/category/:id" 
+                element={isAuthenticated ? <RestaurantsByCategory handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/restaurants/:id" 
+                element={isAuthenticated ? <RestaurantDetails handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/cart" 
+                element={isAuthenticated ? <CartPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/payment" 
+                element={isAuthenticated ? <PaymentPage handleLogout={handleLogout} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/orders" 
+                element={
+                  <ProtectedRoute>
+                    <OrdersPage handleLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="*" 
+                element={<Navigate to="/" replace />} 
+              />
+            </Routes>
+            <ChatBot />
           </div>
         </Router>
       </RestaurantProvider>
