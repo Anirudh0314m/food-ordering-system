@@ -12,6 +12,9 @@ import PaymentPage from './pages/PaymentPage';
 import OrdersPage from './pages/OrdersPage';
 import DeliveryPartnerLogin from './pages/DeliveryPartnerLogin';
 import DeliveryDashboard from './pages/DeliveryDashboard';
+import DeliveryOrders from './pages/DeliveryOrders';
+import DeliveryEarnings from './pages/DeliveryEarnings';
+import DeliveryAccount from './pages/DeliveryAccount';
 import "./styles.css";
 
 import { RestaurantProvider } from './context/RestaurantContext';
@@ -116,6 +119,30 @@ const App = () => {
                 element={
                   <ProtectedRoute role="delivery_partner">
                     <DeliveryDashboard handleLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/delivery/orders" 
+                element={
+                  <ProtectedRoute role="delivery_partner">
+                    <DeliveryOrders handleLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/delivery/earnings" 
+                element={
+                  <ProtectedRoute role="delivery_partner">
+                    <DeliveryEarnings handleLogout={handleLogout} />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/delivery/account" 
+                element={
+                  <ProtectedRoute role="delivery_partner">
+                    <DeliveryAccount handleLogout={handleLogout} />
                   </ProtectedRoute>
                 } 
               />
