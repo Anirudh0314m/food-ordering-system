@@ -1,315 +1,482 @@
-import React, { useState, useEffect } from 'react';
-import { FaStar, FaUser, FaMotorcycle, FaBicycle, FaCar, FaIdCard, FaSave, FaTimes } from 'react-icons/fa';
-import DeliveryNavbar from '../components/DeliveryNavbar';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaUser, FaMotorcycle, FaCar, FaBicycle, FaIdCard, FaFileAlt, FaUpload, FaCheckCircle, FaTimesCircle, FaRegClock, FaEdit, FaArrowLeft } from 'react-icons/fa';
+import { GiSteeringWheel, GiCalendar } from 'react-icons/gi';
 import '../styles/DeliveryAccount.css';
 
-const DeliveryAccount = ({ handleLogout }) => {
-  const [isOnline, setIsOnline] = useState(false);
-  const [partnerName, setPartnerName] = useState('');
-  const [currentLocation, setCurrentLocation] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+const DeliveryAccount = () => {
+  // States for profile information
+  const [partnerInfo, setPartnerInfo] = useState({
+    id: '',
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    joinedDate: ''
+  });
+
+  // Vehicle information state
+  const [vehicleInfo, setVehicleInfo] = useState({
+    type: 'motorcycle', // motorcycle, car, bicycle
+    model: '',
+    year: '',
+    color: '',
+    licensePlate: ''
+  });
+
+  // Document state
+  const [documents, setDocuments] = useState([
+    { 
+      id: 'driver_license', 
+      name: 'Driver\'s License', 
+      status: 'pending',
+      uploadDate: '03/20/2025', 
+      expiryDate: '03/20/2030',
+      file: null
+    },
+    { 
+      id: 'id_proof', 
+      name: 'Identity Proof', 
+      status: 'verified',
+      uploadDate: '03/15/2025', 
+      expiryDate: 'N/A',
+      file: null
+    },
+    { 
+      id: 'vehicle_registration', 
+      name: 'Vehicle Registration', 
+      status: 'missing',
+      uploadDate: '', 
+      expiryDate: '',
+      file: null
+    }
+  ]);
+
+  // UI state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isEditingVehicle, setIsEditingVehicle] = useState(false);
+  const [activeDocumentUpload, setActiveDocumentUpload] = useState(null);
   
-  // Profile state
-  const [avatar, setAvatar] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [vehicleType, setVehicleType] = useState('bike');
-  const [rating, setRating] = useState(0);
-  const [joinDate, setJoinDate] = useState('');
-  
-  // Password change state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  
+  // Refs
+  const fileInputRef = useRef(null);
+
+  // Effects
   useEffect(() => {
-    // Get partner info from localStorage
-    const name = localStorage.getItem('partnerName');
-    setPartnerName(name || 'Delivery Partner');
+    // Load partner information from localStorage
+    const partnerId = localStorage.getItem('partnerId');
+    const name = localStorage.getItem('partnerName') || 'Delivery Partner';
     
-    // Check online status from localStorage or set default
-    const status = localStorage.getItem('isOnline') === 'true';
-    setIsOnline(status);
-    
-    // Get current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords = `${position.coords.latitude.toFixed(3)}, ${position.coords.longitude.toFixed(3)}`;
-          setCurrentLocation(coords);
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          setCurrentLocation('Location unavailable');
-        }
-      );
-    }
-    
-    // Load mock profile data
-    loadMockProfile();
-    
-    setIsLoading(false);
-  }, []);
-  
-  const loadMockProfile = () => {
-    // Mock profile data for demo
-    setName('John Rider');
-    setEmail('john@example.com');
-    setPhone('9876543210');
-    setVehicleType('bike');
-    setRating(4.8);
-    
-    // Mock join date (3 months ago)
-    const mockJoinDate = new Date();
-    mockJoinDate.setMonth(mockJoinDate.getMonth() - 3);
-    setJoinDate(mockJoinDate.toISOString());
-  };
-  
-  const toggleOnlineStatus = () => {
-    const newStatus = !isOnline;
-    setIsOnline(newStatus);
-    localStorage.setItem('isOnline', newStatus.toString());
-  };
-  
-  const handleUpdateProfile = (e) => {
-    e.preventDefault();
-    
-    // Basic validation
-    if (!name || !email || !phone) {
-      alert('Please fill in all required fields');
-      return;
-    }
-    
-    // In a real app, send update to API
-    console.log('Updating profile with:', { name, email, phone, vehicleType });
-    
-    // For demo, just update partner name in localStorage
-    localStorage.setItem('partnerName', name);
-    setPartnerName(name);
-    
-    setIsEditing(false);
-    alert('Profile updated successfully!');
-  };
-  
-  const handlePasswordChange = (e) => {
-    e.preventDefault();
-    setPasswordError('');
-    
-    // Basic validation
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError('All password fields are required');
-      return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-      setPasswordError('New passwords do not match');
-      return;
-    }
-    
-    if (newPassword.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return;
-    }
-    
-    // In a real app, send password update to API
-    console.log('Updating password');
-    
-    // Reset fields
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    
-    alert('Password changed successfully!');
-  };
-  
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric'
+    // Example of loading data - in a real app, this would come from an API
+    setPartnerInfo({
+      id: partnerId || 'DP' + Date.now().toString().slice(-8),
+      name: name,
+      phone: '555-123-4567',
+      email: 'partner@example.com',
+      address: '123 Main St, Anytown',
+      joinedDate: 'March 15, 2025'
     });
+    
+    // Load saved vehicle info if available
+    const savedVehicleInfo = localStorage.getItem('partnerVehicleInfo');
+    if (savedVehicleInfo) {
+      setVehicleInfo(JSON.parse(savedVehicleInfo));
+    }
+    
+    // Load saved documents if available
+    const savedDocuments = localStorage.getItem('partnerDocuments');
+    if (savedDocuments) {
+      setDocuments(JSON.parse(savedDocuments));
+    }
+  }, []);
+
+  // Handle profile update
+  const handleProfileUpdate = (e) => {
+    e.preventDefault();
+    
+    // Save to localStorage (in real app, send to API)
+    localStorage.setItem('partnerName', partnerInfo.name);
+    
+    // Exit edit mode
+    setIsEditingProfile(false);
   };
-  
-  const getVehicleIcon = () => {
-    switch (vehicleType) {
-      case 'bike': return <FaMotorcycle size={24} />;
-      case 'bicycle': return <FaBicycle size={24} />;
-      case 'car': return <FaCar size={24} />;
-      default: return <FaMotorcycle size={24} />;
+
+  // Handle vehicle update
+  const handleVehicleUpdate = (e) => {
+    e.preventDefault();
+    
+    // Save to localStorage (in real app, send to API)
+    localStorage.setItem('partnerVehicleInfo', JSON.stringify(vehicleInfo));
+    
+    // Exit edit mode
+    setIsEditingVehicle(false);
+  };
+
+  // Handle document upload
+  const handleDocumentUpload = (documentId) => {
+    setActiveDocumentUpload(documentId);
+    fileInputRef.current.click();
+  };
+
+  // Handle file selection
+  const handleFileChange = (e) => {
+    if (!e.target.files[0] || !activeDocumentUpload) return;
+    
+    const file = e.target.files[0];
+    
+    // Update the document with the new file
+    const updatedDocuments = documents.map(doc => {
+      if (doc.id === activeDocumentUpload) {
+        // In a real app, you'd upload this file to a server
+        // and get back a URL/confirmation
+        return {
+          ...doc,
+          file: file,
+          uploadDate: new Date().toLocaleDateString(),
+          status: 'pending'
+        };
+      }
+      return doc;
+    });
+    
+    setDocuments(updatedDocuments);
+    localStorage.setItem('partnerDocuments', JSON.stringify(updatedDocuments));
+    
+    // Reset active document
+    setActiveDocumentUpload(null);
+  };
+
+  // Get status icon based on document status
+  const getStatusIcon = (status) => {
+    switch(status) {
+      case 'verified':
+        return <FaCheckCircle color="#4CAF50" />;
+      case 'pending':
+        return <FaRegClock color="#FF9800" />;
+      case 'missing':
+      default:
+        return <FaTimesCircle color="#F44336" />;
     }
   };
 
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
+  // Get vehicle icon based on type
+  const getVehicleIcon = (type) => {
+    switch(type) {
+      case 'car':
+        return <FaCar />;
+      case 'bicycle':
+        return <FaBicycle />;
+      case 'motorcycle':
+      default:
+        return <FaMotorcycle />;
+    }
+  };
 
   return (
     <div className="delivery-account-container">
-      <DeliveryNavbar 
-        isOnline={isOnline}
-        toggleOnlineStatus={toggleOnlineStatus}
-        partnerName={partnerName}
-        currentLocation={currentLocation}
-        handleLogout={handleLogout}
-      />
-      
-      <div className="account-container">
-        <h1>Account Settings</h1>
-        
-        <div className="profile-section">
-          <div className="profile-header">
-            <div className="avatar-section">
-              <div className="avatar-large">
-                {avatar ? (
-                  <img src={avatar} alt="Profile" />
-                ) : (
-                  <FaUser size={48} />
-                )}
+      <div className="account-dashboard">
+        <div className="account-content">
+          <div className="account-header">
+            <h1>My Account</h1>
+            {!isEditingProfile && !isEditingVehicle && (
+              <div className="account-actions">
+                <button className="edit-profile-btn" onClick={() => setIsEditingProfile(true)}>
+                  <FaEdit /> Edit Profile
+                </button>
               </div>
-              <button className="change-avatar">Change Photo</button>
-            </div>
-            <div className="profile-info">
-              <h2>{name}</h2>
-              <div className="rating">
-                <FaStar color="#FFC107" />
-                <span>{rating} / 5.0</span>
-              </div>
-              <div className="partner-since">
-                Partner since: {formatDate(joinDate)}
-              </div>
-              <div className="vehicle-type">
-                {getVehicleIcon()}
-                <span>
-                  {vehicleType === 'bike' ? 'Motorcycle/Scooter' : 
-                   vehicleType === 'bicycle' ? 'Bicycle' : 'Car'}
-                </span>
-              </div>
-            </div>
-            <button 
-              className="edit-profile-btn"
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
-            </button>
+            )}
           </div>
-          
-          <div className="account-forms">
-            <div className="account-form profile-form">
-              <h3>Personal Information</h3>
-              <form onSubmit={handleUpdateProfile}>
-                <div className="form-group">
-                  <label>Full Name</label>
-                  <input 
-                    type="text" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    disabled={!isEditing}
-                    required
-                  />
+
+          {isEditingProfile ? (
+            <div className="edit-profile-form">
+              <form onSubmit={handleProfileUpdate}>
+                <div className="form-section">
+                  <h2>Personal Information</h2>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label htmlFor="name">Full Name</label>
+                      <input 
+                        id="name" 
+                        type="text" 
+                        value={partnerInfo.name} 
+                        onChange={(e) => setPartnerInfo({...partnerInfo, name: e.target.value})}
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="phone">Phone</label>
+                      <input 
+                        id="phone" 
+                        type="tel" 
+                        value={partnerInfo.phone} 
+                        onChange={(e) => setPartnerInfo({...partnerInfo, phone: e.target.value})}
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="email">Email</label>
+                      <input 
+                        id="email" 
+                        type="email" 
+                        value={partnerInfo.email} 
+                        onChange={(e) => setPartnerInfo({...partnerInfo, email: e.target.value})}
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="address">Address</label>
+                      <input 
+                        id="address" 
+                        type="text" 
+                        value={partnerInfo.address} 
+                        onChange={(e) => setPartnerInfo({...partnerInfo, address: e.target.value})}
+                        required 
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label>Email</label>
-                  <input 
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    disabled={!isEditing}
-                    required
-                  />
+
+                <div className="form-actions">
+                  <button type="button" className="cancel-btn" onClick={() => setIsEditingProfile(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="save-btn">
+                    Save Changes
+                  </button>
                 </div>
-                <div className="form-group">
-                  <label>Phone</label>
-                  <input 
-                    type="tel" 
-                    value={phone} 
-                    onChange={(e) => setPhone(e.target.value)} 
-                    disabled={!isEditing}
-                    required
-                    pattern="[0-9]{10}"
-                  />
+              </form>
+            </div>
+          ) : isEditingVehicle ? (
+            <div className="edit-profile-form">
+              <form onSubmit={handleVehicleUpdate}>
+                <div className="form-section">
+                  <div className="vehicle-form-header">
+                    <h2>Vehicle Information</h2>
+                    <button 
+                      type="button" 
+                      className="back-btn"
+                      onClick={() => setIsEditingVehicle(false)}
+                    >
+                      <FaArrowLeft /> Back
+                    </button>
+                  </div>
+                  
+                  <div className="vehicle-type-selector">
+                    <div 
+                      className={`vehicle-type-option ${vehicleInfo.type === 'motorcycle' ? 'active' : ''}`}
+                      onClick={() => setVehicleInfo({...vehicleInfo, type: 'motorcycle'})}
+                    >
+                      <FaMotorcycle />
+                      <p>Motorcycle</p>
+                    </div>
+                    <div 
+                      className={`vehicle-type-option ${vehicleInfo.type === 'car' ? 'active' : ''}`}
+                      onClick={() => setVehicleInfo({...vehicleInfo, type: 'car'})}
+                    >
+                      <FaCar />
+                      <p>Car</p>
+                    </div>
+                    <div 
+                      className={`vehicle-type-option ${vehicleInfo.type === 'bicycle' ? 'active' : ''}`}
+                      onClick={() => setVehicleInfo({...vehicleInfo, type: 'bicycle'})}
+                    >
+                      <FaBicycle />
+                      <p>Bicycle</p>
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label htmlFor="model">Vehicle Model</label>
+                      <input 
+                        id="model" 
+                        type="text" 
+                        value={vehicleInfo.model} 
+                        onChange={(e) => setVehicleInfo({...vehicleInfo, model: e.target.value})}
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="year">Year</label>
+                      <input 
+                        id="year" 
+                        type="text" 
+                        value={vehicleInfo.year} 
+                        onChange={(e) => setVehicleInfo({...vehicleInfo, year: e.target.value})}
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="color">Color</label>
+                      <input 
+                        id="color" 
+                        type="text" 
+                        value={vehicleInfo.color} 
+                        onChange={(e) => setVehicleInfo({...vehicleInfo, color: e.target.value})}
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="licensePlate">License Plate</label>
+                      <input 
+                        id="licensePlate" 
+                        type="text" 
+                        value={vehicleInfo.licensePlate} 
+                        onChange={(e) => setVehicleInfo({...vehicleInfo, licensePlate: e.target.value})}
+                        required 
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label>Vehicle Type</label>
-                  <select 
-                    value={vehicleType} 
-                    onChange={(e) => setVehicleType(e.target.value)}
-                    disabled={!isEditing}
-                  >
-                    <option value="bike">Motorcycle/Scooter</option>
-                    <option value="bicycle">Bicycle</option>
-                    <option value="car">Car</option>
-                  </select>
+
+                <div className="form-actions">
+                  <button type="button" className="cancel-btn" onClick={() => setIsEditingVehicle(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="save-btn">
+                    Save Vehicle Information
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="profile-view">
+              <div className="profile-sections">
+                {/* Personal Information Section */}
+                <div className="profile-card">
+                  <h2><FaUser /> Personal Information</h2>
+                  <div className="profile-grid">
+                    <div className="profile-field">
+                      <span className="field-label">Name</span>
+                      <div className="field-value">{partnerInfo.name}</div>
+                    </div>
+                    <div className="profile-field">
+                      <span className="field-label">Phone</span>
+                      <div className="field-value">{partnerInfo.phone}</div>
+                    </div>
+                    <div className="profile-field">
+                      <span className="field-label">Email</span>
+                      <div className="field-value">{partnerInfo.email}</div>
+                    </div>
+                    <div className="profile-field">
+                      <span className="field-label">Address</span>
+                      <div className="field-value">{partnerInfo.address}</div>
+                    </div>
+                    <div className="profile-field">
+                      <span className="field-label">Partner ID</span>
+                      <div className="field-value">{partnerInfo.id}</div>
+                    </div>
+                    <div className="profile-field">
+                      <span className="field-label">Joined Date</span>
+                      <div className="field-value">{partnerInfo.joinedDate}</div>
+                    </div>
+                  </div>
                 </div>
                 
-                {isEditing && (
-                  <button type="submit" className="save-btn">
-                    <FaSave /> Save Changes
-                  </button>
-                )}
-              </form>
+                {/* Vehicle Information Section */}
+                <div className="vehicle-section">
+                  <h2>{getVehicleIcon(vehicleInfo.type)} Vehicle Information</h2>
+                  
+                  <div className="vehicle-info">
+                    <div className="vehicle-detail">
+                      <span className="vehicle-detail-label">Vehicle Type</span>
+                      <span className="vehicle-detail-value">
+                        {vehicleInfo.type.charAt(0).toUpperCase() + vehicleInfo.type.slice(1)}
+                      </span>
+                    </div>
+                    
+                    <div className="vehicle-detail">
+                      <span className="vehicle-detail-label">Model</span>
+                      <span className="vehicle-detail-value">{vehicleInfo.model || 'Not specified'}</span>
+                    </div>
+                    
+                    <div className="vehicle-detail">
+                      <GiCalendar />
+                      <span className="vehicle-detail-label">Year</span>
+                      <span className="vehicle-detail-value">{vehicleInfo.year || 'Not specified'}</span>
+                    </div>
+                    
+                    <div className="vehicle-detail">
+                      <span className="vehicle-detail-label">Color</span>
+                      <span className="vehicle-detail-value">{vehicleInfo.color || 'Not specified'}</span>
+                    </div>
+                    
+                    <div className="vehicle-detail">
+                      <GiSteeringWheel />
+                      <span className="vehicle-detail-label">License Plate</span>
+                      <span className="vehicle-detail-value">{vehicleInfo.licensePlate || 'Not specified'}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="vehicle-actions">
+                    <button className="update-vehicle-btn" onClick={() => setIsEditingVehicle(true)}>
+                      <FaEdit /> Update Vehicle Information
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Documents Section */}
+              <div className="documents-section">
+                <h2><FaIdCard /> Documents & Verification</h2>
+                <p>These documents are required for verification purposes. Please upload clear and valid documents.</p>
+                
+                <div className="documents-grid">
+                  {documents.map(doc => (
+                    <div key={doc.id} className="document-card">
+                      <div className={`document-icon ${doc.status === 'pending' ? 'document-pending' : doc.status === 'missing' ? 'document-missing' : ''}`}>
+                        {doc.id === 'driver_license' ? <FaIdCard /> : doc.id === 'vehicle_registration' ? <FaCar /> : <FaFileAlt />}
+                      </div>
+                      <div className="document-details">
+                        <h3>{doc.name}</h3>
+                        
+                        {doc.status !== 'missing' && (
+                          <p>Uploaded: {doc.uploadDate}</p>
+                        )}
+                        
+                        {doc.expiryDate && doc.status !== 'missing' && (
+                          <p>Expires: {doc.expiryDate}</p>
+                        )}
+                        
+                        <div className={`verification-status status-${doc.status}`}>
+                          {getStatusIcon(doc.status)}
+                          <span>
+                            {doc.status === 'verified' ? 'Verified' : 
+                             doc.status === 'pending' ? 'Pending Verification' : 
+                             'Missing Document'}
+                          </span>
+                        </div>
+                        
+                        <div className="document-update">
+                          <button 
+                            className="update-document-btn"
+                            onClick={() => handleDocumentUpload(doc.id)}
+                          >
+                            <FaUpload /> {doc.status === 'missing' ? 'Upload' : 'Update'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Hidden file input for document uploads */}
+                <input 
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                  accept="image/*,.pdf"
+                />
+                
+                <div className="document-upload" onClick={() => fileInputRef.current.click()}>
+                  <FaUpload />
+                  <h3>Upload Additional Documents</h3>
+                  <p>Click or drop files here to upload</p>
+                  <p className="upload-hint">Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+                </div>
+              </div>
             </div>
-            
-            <div className="account-form password-form">
-              <h3>Change Password</h3>
-              <form onSubmit={handlePasswordChange}>
-                <div className="form-group">
-                  <label>Current Password</label>
-                  <input 
-                    type="password" 
-                    value={currentPassword} 
-                    onChange={(e) => setCurrentPassword(e.target.value)} 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>New Password</label>
-                  <input 
-                    type="password" 
-                    value={newPassword} 
-                    onChange={(e) => setNewPassword(e.target.value)} 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Confirm New Password</label>
-                  <input 
-                    type="password" 
-                    value={confirmPassword} 
-                    onChange={(e) => setConfirmPassword(e.target.value)} 
-                  />
-                </div>
-                {passwordError && (
-                  <div className="error-message">{passwordError}</div>
-                )}
-                <button type="submit" className="save-btn">
-                  Update Password
-                </button>
-              </form>
-            </div>
-          </div>
+          )}
           
-          <div className="account-section documents">
-            <h3>Documents</h3>
-            <div className="document-list">
-              <div className="document-item">
-                <FaIdCard size={24} />
-                <div className="document-info">
-                  <h4>ID Proof</h4>
-                  <p>Aadhar Card: XXXX-XXXX-1234</p>
-                </div>
-                <button className="update-btn">Update</button>
-              </div>
-              <div className="document-item">
-                <FaIdCard size={24} />
-                <div className="document-info">
-                  <h4>Driving License</h4>
-                  <p>License No: DL-1234567890</p>
-                </div>
-                <button className="update-btn">Update</button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -29,9 +29,10 @@ body, html {
   padding: 0;
 }
 
+/* Fixed Navigation Bar Styles */
 .dashboard-header {
   background-color: #ffffff;
-  padding: 15px 20px;
+  padding: 15px 30px; /* Increased horizontal padding */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
@@ -40,16 +41,18 @@ body, html {
   top: 0;
   z-index: 100;
   width: 100%;
-  box-sizing: border-box; /* Ensures padding is included in width */
+  box-sizing: border-box;
   left: 0;
   right: 0;
 }
 
+/* Logo styling */
 .logo {
   display: flex;
   align-items: center;
   gap: 10px;
   color: #FF5A5F;
+  min-width: 150px; /* Ensure consistent size */
 }
 
 .logo h1 {
@@ -57,40 +60,60 @@ body, html {
   margin: 0;
 }
 
-.logo svg {
-  font-size: 1.5rem;
-}
-
+/* Fixed Navigation Layout */
 .dashboard-nav {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  justify-content: center; /* Center the navigation items */
+  gap: 5px; /* Reduced gap for more consistent spacing */
 }
 
+/* Fixed-width navigation items */
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  min-width: 110px; /* Fixed width for all items */
   color: #555;
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 10px 15px;
   border-radius: 6px;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s;
+  font-weight: 500; /* Set all items to the same font weight */
+  text-align: center;
 }
 
+/* Hover state */
 .nav-item:hover {
   background-color: #f5f5f5;
+  color: #333;
 }
 
+/* Active state - don't change font-weight to avoid layout shift */
 .nav-item.active {
   color: #FF5A5F;
   background-color: rgba(255, 90, 95, 0.1);
-  font-weight: 500;
+  /* Removed font-weight change */
 }
 
+/* Fix the icon positioning */
+.nav-item svg {
+  font-size: 16px; /* Consistent icon size */
+  min-width: 16px; /* Fixed width for icons */
+}
+
+/* Text content inside nav-item */
+.nav-item span {
+  margin-left: 8px; /* Fixed spacing after icon */
+}
+
+/* User menu */
 .user-menu {
   display: flex;
   align-items: center;
   gap: 15px;
+  min-width: 150px; /* Ensure consistent size */
+  justify-content: flex-end;
 }
 
 .user-name {
@@ -263,4 +286,218 @@ body, html {
 .status-badge.preparing {
   background-color: rgba(255, 193, 7, 0.1);
   color: #FFC107;
+}
+
+/* Account Page Styles */
+.account-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.account-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.account-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0f0f0;
+}
+
+.account-card h3 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.account-card h3 svg {
+  color: #FF5A5F;
+}
+
+.account-info {
+  margin-bottom: 20px;
+}
+
+.info-item {
+  margin-bottom: 15px;
+}
+
+.info-item label {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.info-item p {
+  margin: 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.account-actions {
+  margin-top: 20px;
+}
+
+.edit-btn {
+  background-color: #f5f5f5;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: #eee;
+  color: #333;
+}
+
+.save-btn {
+  background-color: #FF5A5F;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.save-btn:hover {
+  background-color: #ff4448;
+}
+
+/* Form fields for account editing */
+.edit-form .form-group {
+  margin-bottom: 20px;
+}
+
+.edit-form label {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.edit-form input,
+.edit-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.edit-form input:focus,
+.edit-form select:focus {
+  outline: none;
+  border-color: #FF5A5F;
+  box-shadow: 0 0 0 3px rgba(255, 90, 95, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel-btn {
+  background-color: transparent;
+  border: 1px solid #ddd;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+}
+
+.cancel-btn:hover {
+  background-color: #f5f5f5;
+}
+
+/* Stats cards for earnings display */
+.stats-card {
+  background: linear-gradient(135deg, #FF5A5F 0%, #FF8A8F 100%);
+  color: white;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.stats-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.stats-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 15px 0 10px;
+}
+
+.stats-change {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.stats-change.positive {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.stats-change.negative {
+  color: rgba(255, 0, 0, 0.8);
+}
+
+/* Vehicle information section */
+.vehicle-info {
+  margin-top: 10px;
+}
+
+.vehicle-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.vehicle-item svg {
+  color: #888;
 }
