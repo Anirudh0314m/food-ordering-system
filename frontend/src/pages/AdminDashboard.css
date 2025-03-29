@@ -2113,6 +2113,18 @@
   background-color: #c8e6c9;
 }
 
+.action-btn.ready-pickup {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.action-btn.ready-pickup:hover {
+  background-color: #bbdefb;
+}
+
 .orders-loading {
   display: flex;
   justify-content: center;
@@ -2469,7 +2481,7 @@
 }
 
 .status-btn {
-  background: white;
+  background: rgb(247, 245, 245);
   border: 1px solid #e0e0e0;
   border-radius: 25px;
   padding: 10px 20px;
@@ -3768,4 +3780,86 @@
   .stock-dashboard {
     grid-template-columns: 1fr;
   }
+}
+
+/* Delivery Partner Notifications */
+.delivery-notifications {
+  margin-bottom: 1.5rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.delivery-notifications h3 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notification-item {
+  background-color: #f8f9fa;
+  border-left: 4px solid #FF5A5F;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.notification-item p {
+  margin: 0;
+}
+
+.notification-actions button {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.notification-actions button:hover {
+  text-decoration: underline;
+}
+
+/* Order delivery partner info */
+.order-delivery-partner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px dashed #eee;
+}
+
+.delivery-status {
+  background-color: #f8f9fa;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.delivery-status.accepted {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #2196F3;
+}
+
+.delivery-status.picked_up {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+}
+
+.delivery-status.delivered {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaUtensils, FaList, FaUsers, FaSignOutAlt, FaTrash, FaPlus, FaEdit, FaArrowLeft, FaStore, FaCheckCircle, FaMotorcycle, FaHome, FaSearch, FaCheck, FaTimes, FaHourglassHalf, FaUserEdit,FaBoxOpen ,FaWarehouse,FaSync} from 'react-icons/fa';
+import { FaUtensils, FaList, FaUsers, FaSignOutAlt, FaTrash, FaPlus, FaEdit, FaArrowLeft, FaStore, FaCheckCircle, FaMotorcycle, FaHome, FaSearch, FaCheck, FaTimes, FaHourglassHalf, FaUserEdit, FaBoxOpen, FaWarehouse, FaSync } from 'react-icons/fa';
 import { categories } from '../constants/categories';
 import './AdminDashboard.css';
 import { addMenuItem, updateMenuItem, deleteMenuItem } from '../services/api';
@@ -62,27 +62,29 @@ const AdminDashboard = ({ handleLogout }) => {
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState('');
 
-
   // Add these state variables after your existing state declarations
-const [stockItems, setStockItems] = useState([]);
-const [stockHistory, setStockHistory] = useState([]);
-const [stockManagementRestaurant, setStockManagementRestaurant] = useState(null);
-const [selectedMenuItem, setSelectedMenuItem] = useState(null);
-const [stockQuantity, setStockQuantity] = useState(0);
-const [stockNote, setStockNote] = useState('');
-const [stockFilter, setStockFilter] = useState('all');
-const [stockDashboard, setStockDashboard] = useState({
-  outOfStockCount: 0,
-  lowStockCount: 0,
-  healthyStockCount: 0,
-  totalItems: 0
-});
-const [stockDashboardLoading, setStockDashboardLoading] = useState(false);
+  const [stockItems, setStockItems] = useState([]);
+  const [stockHistory, setStockHistory] = useState([]);
+  const [stockManagementRestaurant, setStockManagementRestaurant] = useState(null);
+  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+  const [stockQuantity, setStockQuantity] = useState(0);
+  const [stockNote, setStockNote] = useState('');
+  const [stockFilter, setStockFilter] = useState('all');
+  const [stockDashboard, setStockDashboard] = useState({
+    outOfStockCount: 0,
+    lowStockCount: 0,
+    healthyStockCount: 0,
+    totalItems: 0
+  });
+  const [stockDashboardLoading, setStockDashboardLoading] = useState(false);
+
+  const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
     fetchRestaurants();
     loadUsers(); // Use loadUsers instead of fetchUsers
   }, []);
- 
+
   useEffect(() => {
     // Reset all selected restaurant states when changing sections
     setViewSelectedRestaurant(null);
@@ -98,13 +100,13 @@ const [stockDashboardLoading, setStockDashboardLoading] = useState(false);
 
   useEffect(() => {
     loadOrders();
-    
+
     // Set up interval to refresh orders every 30 seconds
     const intervalId = setInterval(loadOrders, 30000);
-    
+
     return () => clearInterval(intervalId);
   }, []);
-  
+
   // Filter orders when tab or search term changes
   useEffect(() => {
     filterOrders();
@@ -119,12 +121,26 @@ const [stockDashboardLoading, setStockDashboardLoading] = useState(false);
     }
   }, [activeTab]);
 
-// Add this useEffect hook with your other hooks
-useEffect(() => {
-  if (activeSection === 'stockManagement' && !stockManagementRestaurant) {
-    fetchStockDashboard();
-  }
-}, [activeSection, stockManagementRestaurant]);
+  // Add this useEffect hook with your other hooks
+  useEffect(() => {
+    if (activeSection === 'stockManagement' && !stockManagementRestaurant) {
+      fetchStockDashboard();
+    }
+  }, [activeSection, stockManagementRestaurant]);
+
+  useEffect(() => {
+    const loadNotifications = () => {
+      const storedNotifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+      setNotifications(storedNotifications.filter(n => !n.read).slice(0, 5)); // Get latest 5 unread
+    };
+    
+    loadNotifications();
+    
+    // Check for new notifications every 10 seconds
+    const notifInterval = setInterval(loadNotifications, 10000);
+    
+    return () => clearInterval(notifInterval);
+  }, []);
 
   const fetchRestaurants = async () => {
     try {
@@ -150,16 +166,16 @@ useEffect(() => {
     setLoading(true);
     try {
       // Validate all required fields
-      if (!newRestaurant.name || !newRestaurant.cuisine || 
-          !newRestaurant.category || !newRestaurant.address || 
-          !newRestaurant.image) {
+      if (!newRestaurant.name || !newRestaurant.cuisine ||
+        !newRestaurant.category || !newRestaurant.address ||
+        !newRestaurant.image) {
         throw new Error('All fields are required');
       }
 
       console.log('Sending restaurant data:', newRestaurant);
-      
+
       const response = await axios.post(
-        'http://localhost:5000/api/restaurants', 
+        'http://localhost:5000/api/restaurants',
         newRestaurant,
         {
           headers: {
@@ -167,9 +183,9 @@ useEffect(() => {
           }
         }
       );
-      
+
       console.log('Server response:', response.data);
-      
+
       setNewRestaurant({
         name: '',
         cuisine: '',
@@ -177,7 +193,7 @@ useEffect(() => {
         address: '',
         image: ''
       });
-      
+
       await fetchRestaurants();
       alert('Restaurant added successfully!');
     } catch (error) {
@@ -216,9 +232,9 @@ useEffect(() => {
         ...menuForm,
         restaurantId: restaurantId
       };
-  
+
       const response = await axios.post('http://localhost:5000/api/menu-items', newItem);
-      
+
       setMenuItems([...menuItems, response.data]);
       setMenuForm({
         name: '',
@@ -228,7 +244,7 @@ useEffect(() => {
         category: '',
         isVeg: false
       });
-      
+
       alert('Menu item added successfully!');
     } catch (error) {
       console.error('Error adding menu item:', error);
@@ -240,7 +256,7 @@ useEffect(() => {
     e.preventDefault();
     try {
       const updatedItem = await updateMenuItem(editingItem._id, menuForm);
-      setMenuItems(menuItems.map(item => 
+      setMenuItems(menuItems.map(item =>
         item._id === editingItem._id ? updatedItem : item
       ));
       setEditingItem(null);
@@ -302,7 +318,7 @@ useEffect(() => {
       // For demo, get from localStorage 
       const savedOrders = localStorage.getItem('foodAppOrders');
       let allOrders = [];
-      
+
       if (savedOrders) {
         allOrders = JSON.parse(savedOrders);
       } else {
@@ -339,7 +355,7 @@ useEffect(() => {
         ];
         localStorage.setItem('foodAppOrders', JSON.stringify(allOrders));
       }
-      
+
       setOrders(allOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -351,67 +367,67 @@ useEffect(() => {
   const updateOrderStatus = (orderId, newStatus) => {
     // Get the current orders from localStorage
     const allOrders = JSON.parse(localStorage.getItem('foodAppOrders') || '[]');
-    
+
     // Find the order to update
     const updatedOrders = allOrders.map(order => {
       if (order._id === orderId) {
         // For delivered status, add delivery completion time
         const statusHistory = [
           ...order.statusHistory || [],
-          { 
-            status: newStatus, 
+          {
+            status: newStatus,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now()
           }
         ];
-        
+
         // Special handling for delivered status
         let updatedOrder = {
           ...order,
           status: newStatus,
           statusHistory
         };
-        
+
         // If order is delivered, mark delivery time
         if (newStatus === 'delivered') {
           updatedOrder.deliveryTime = Date.now();
-          
+
           // You might want to calculate delivery metrics
           const orderTime = new Date(order.orderTime);
           const deliveryTime = new Date();
           const deliveryDuration = (deliveryTime - orderTime) / (1000 * 60); // in minutes
-          
+
           updatedOrder.metrics = {
             ...order.metrics || {},
             deliveryDuration,
             deliveredOn: deliveryTime.toISOString()
           };
         }
-        
+
         return updatedOrder;
       }
       return order;
     });
-    
+
     // Save the updated orders back to localStorage
     localStorage.setItem('foodAppOrders', JSON.stringify(updatedOrders));
-    
+
     // Update the orders in state
     setOrders(updatedOrders);
-    
+
     // Show success message
     setMessage(`Order #${orderId} status updated to ${getStatusDisplayName(newStatus)}`);
     setShowMessage(true);
-    
+
     // Hide message after a few seconds
     setTimeout(() => {
       setShowMessage(false);
     }, 3000);
   };
-  
+
   // Helper function to get display name for status
   const getStatusDisplayName = (status) => {
-    switch(status) {
+    switch (status) {
       case 'order-received': return 'Order Received';
       case 'confirmed': return 'Confirmed';
       case 'preparing': return 'Preparing';
@@ -474,24 +490,24 @@ useEffect(() => {
       case 'new':
         // Show only new/pending orders
         return order.status === 'order-received' || order.adminStatus === 'pending';
-        
+
       case 'processing':
         // Show orders that are accepted or being prepared
-        return (order.status === 'accepted' || order.status === 'preparing') && 
-               order.adminStatus !== 'rejected';
-        
+        return (order.status === 'accepted' || order.status === 'preparing') &&
+          order.adminStatus !== 'rejected';
+
       case 'delivery':
         // Show orders that are out for delivery
         return order.status === 'out-for-delivery';
-        
+
       case 'completed':
         // Show delivered orders
         return order.status === 'delivered';
-        
+
       case 'cancelled':
         // Show cancelled/rejected orders
         return order.status === 'cancelled' || order.adminStatus === 'rejected';
-        
+
       default:
         return true;
     }
@@ -515,12 +531,12 @@ useEffect(() => {
     setOrders(adminOrders);
     setIsOrdersLoading(false);
   };
-  
+
   const filterOrders = () => {
     let filtered = [...orders];
-    
+
     // Filter by tab
-    switch(activeOrderTab) {
+    switch (activeOrderTab) {
       case 'pending':
         filtered = filtered.filter(order => order.adminStatus === 'pending');
         break;
@@ -536,39 +552,39 @@ useEffect(() => {
       default:
         break;
     }
-    
+
     // Filter by search term
     if (searchTerm.trim() !== '') {
       const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter(order =>
         order._id.toLowerCase().includes(search) ||
         order.customer?.name?.toLowerCase().includes(search) ||
         order.customer?.phone?.includes(search) ||
         order.restaurantName?.toLowerCase().includes(search)
       );
     }
-    
+
     setFilteredOrders(filtered);
   };
-  
+
   // Update order status
   const updateAdminOrderStatus = (orderId, newAdminStatus, newStatus) => {
     const updatedOrders = orders.map(order => {
       if (order._id === orderId) {
         const now = Date.now();
         const timeString = new Date(now).toLocaleTimeString([], {
-          hour: '2-digit', 
+          hour: '2-digit',
           minute: '2-digit',
           hour12: true
         });
-        
+
         // Create updated order
         const updatedOrder = {
           ...order,
           adminStatus: newAdminStatus,
           status: newStatus || order.status,
         };
-        
+
         // Add status history entry if status changed
         if (newStatus && newStatus !== order.status) {
           // Initialize statusHistory array if it doesn't exist
@@ -578,15 +594,15 @@ useEffect(() => {
             { status: newStatus, time: timeString, timestamp: now }
           ];
         }
-        
+
         return updatedOrder;
       }
       return order;
     });
-    
+
     // Update local storage - admin orders
     localStorage.setItem('adminOrders', JSON.stringify(updatedOrders));
-    
+
     // Update the user-facing orders as well
     const userOrders = JSON.parse(localStorage.getItem('foodAppOrders') || '[]');
     const updatedUserOrders = userOrders.map(order => {
@@ -597,10 +613,10 @@ useEffect(() => {
       return order;
     });
     localStorage.setItem('foodAppOrders', JSON.stringify(updatedUserOrders));
-    
+
     // Update state
     setOrders(updatedOrders);
-    
+
     // Show success notification
     setNotification(`Order #${orderId.slice(-6)} ${newStatus.replace(/-/g, ' ')}`);
     setTimeout(() => setNotification(''), 3000);
@@ -619,34 +635,107 @@ useEffect(() => {
     updateAdminOrderStatus(orderId, 'preparing', 'preparing');
   };
 
-  const handleOutForDelivery = (orderId) => {
-    updateAdminOrderStatus(orderId, 'delivering', 'out-for-delivery');
+  const handleReadyForPickup = (orderId) => {
+    console.log("Setting order ready for pickup:", orderId);
+    
+    try {
+      // Get current time for timestamps
+      const now = Date.now();
+      const timeString = new Date(now).toLocaleTimeString([], {
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      // Get current orders from localStorage
+      const adminOrders = JSON.parse(localStorage.getItem('adminOrders') || '[]');
+      
+      // Update orders with isReadyForDelivery flag
+      const updatedAdminOrders = adminOrders.map(order => {
+        if (order._id === orderId) {
+          console.log(`Marking order ${orderId} as ready for delivery`);
+          
+          // Create updated order with statusHistory
+          const statusHistory = order.statusHistory || [];
+          const updatedOrder = {
+            ...order,
+            adminStatus: 'preparing',
+            status: 'preparing',
+            isReadyForDelivery: true, // This is critical!
+            readyForDeliveryAt: now,
+            statusHistory: [
+              ...statusHistory,
+              { 
+                status: 'ready-for-pickup', 
+                time: timeString, 
+                timestamp: now 
+              }
+            ]
+          };
+          
+          console.log("Updated order object:", updatedOrder);
+          return updatedOrder;
+        }
+        return order;
+      });
+      
+      // Verify the order was updated correctly
+      const updatedOrder = updatedAdminOrders.find(o => o._id === orderId);
+      console.log("Updated order after mapping:", updatedOrder);
+      console.log("isReadyForDelivery set to:", updatedOrder?.isReadyForDelivery);
+      
+      // Save back to localStorage
+      localStorage.setItem('adminOrders', JSON.stringify(updatedAdminOrders));
+      
+      // Double-check that it was saved correctly
+      const savedOrders = JSON.parse(localStorage.getItem('adminOrders'));
+      const savedOrder = savedOrders.find(o => o._id === orderId);
+      console.log("Order after saving to localStorage:", savedOrder);
+      console.log("isReadyForDelivery after save:", savedOrder?.isReadyForDelivery);
+      
+      // Also update customer-facing orders
+      const userOrders = JSON.parse(localStorage.getItem('foodAppOrders') || '[]');
+      const updatedUserOrders = userOrders.map(order => {
+        if (order._id === orderId) {
+          return updatedOrder;
+        }
+        return order;
+      });
+      localStorage.setItem('foodAppOrders', JSON.stringify(updatedUserOrders));
+      
+      // Update state
+      setOrders(updatedAdminOrders);
+      
+      // Show notification
+      setNotification(`Order #${orderId.slice(-6)} is ready for pickup by delivery partners`);
+      setTimeout(() => setNotification(''), 3000);
+    
+    } catch (error) {
+      console.error("Error setting order ready for pickup:", error);
+      alert("There was an error updating the order status. Please try again.");
+    }
   };
 
-  const handleDelivered = (orderId) => {
-    updateAdminOrderStatus(orderId, 'completed', 'delivered');
-  };
-  
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {
-      hour: '2-digit', 
+      hour: '2-digit',
       minute: '2-digit',
       hour12: true
     });
   };
 
   // Add these variables to calculate counts for badges
-  const newOrdersCount = orders.filter(order => 
+  const newOrdersCount = orders.filter(order =>
     order.status === 'order-received' || order.adminStatus === 'pending'
   ).length;
 
-  const processingOrdersCount = orders.filter(order => 
-    (order.status === 'accepted' || order.status === 'preparing') && 
+  const processingOrdersCount = orders.filter(order =>
+    (order.status === 'accepted' || order.status === 'preparing') &&
     order.adminStatus !== 'rejected'
   ).length;
 
-  const deliveryOrdersCount = orders.filter(order => 
+  const deliveryOrdersCount = orders.filter(order =>
     order.status === 'out-for-delivery'
   ).length;
 
@@ -656,13 +745,13 @@ useEffect(() => {
     try {
       // Try multiple sources to collect all users
       let allUsers = [];
-      
+
       // 1. Check the primary 'users' key
       const usersFromStorage = JSON.parse(localStorage.getItem('users') || '[]');
       if (usersFromStorage.length > 0) {
         allUsers = [...usersFromStorage];
       }
-      
+
       // 2. Check for 'registeredUsers' if you use that key anywhere
       const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
       if (registeredUsers.length > 0) {
@@ -672,15 +761,15 @@ useEffect(() => {
           }
         });
       }
-      
+
       // 3. Check for individual users in localStorage
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && (key.startsWith('user_') || key === 'currentUser')) {
           try {
             const userData = JSON.parse(localStorage.getItem(key));
-            if (userData && userData.email && 
-                !allUsers.some(u => (u.id === userData.id) || (u.email === userData.email))) {
+            if (userData && userData.email &&
+              !allUsers.some(u => (u.id === userData.id) || (u.email === userData.email))) {
               allUsers.push(userData);
             }
           } catch (e) {
@@ -688,7 +777,7 @@ useEffect(() => {
           }
         }
       }
-      
+
       // 4. Look for any user data in userAccounts key (sometimes used for authentication)
       const userAccounts = JSON.parse(localStorage.getItem('userAccounts') || '[]');
       if (userAccounts.length > 0) {
@@ -698,7 +787,7 @@ useEffect(() => {
           }
         });
       }
-      
+
       // 5. Check if there's a record of past logins or auth data
       const authData = localStorage.getItem('authData');
       if (authData) {
@@ -711,19 +800,19 @@ useEffect(() => {
           // Skip invalid JSON
         }
       }
-      
+
       // Save the consolidated user list back to localStorage
       if (allUsers.length > 0) {
         localStorage.setItem('users', JSON.stringify(allUsers));
       }
-      
+
       // Update state with all found users
       setUsers(allUsers);
-      
+
     } catch (error) {
       console.error('Error loading users:', error);
     }
-    
+
     setIsUsersLoading(false);
   };
 
@@ -734,14 +823,14 @@ useEffect(() => {
         // Remove from state
         const updatedUsers = users.filter(user => (user.id || user._id) !== userId);
         setUsers(updatedUsers);
-        
+
         // Update in localStorage
         localStorage.setItem('users', JSON.stringify(updatedUsers));
-        
+
         // Show success message
         setMessage('User deleted successfully');
         setShowMessage(true);
-        
+
         setTimeout(() => {
           setShowMessage(false);
         }, 3000);
@@ -749,7 +838,7 @@ useEffect(() => {
         console.error('Error deleting user:', error);
         setMessage('Error deleting user');
         setShowMessage(true);
-        
+
         setTimeout(() => {
           setShowMessage(false);
         }, 3000);
@@ -758,197 +847,207 @@ useEffect(() => {
   };
 
   // Add these functions before the return statement
-const fetchStockDashboard = async () => {
-  try {
-    setStockDashboardLoading(true);
-    // Calculate from existing menu items
-    const allItems = [];
-    
-    // Get items for all restaurants
-    for (const restaurant of restaurants) {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/menu-items/restaurant/${restaurant._id}`);
-        if (Array.isArray(response.data)) {
-          allItems.push(...response.data);
-        }
-      } catch (err) {
-        console.log(`Couldn't load items for ${restaurant.name}`);
-      }
-    }
-    
-    // Calculate statistics
-    const outOfStock = allItems.filter(item => item.stockQuantity === 0).length;
-    const lowStock = allItems.filter(item => 
-      item.stockQuantity > 0 && 
-      item.stockQuantity <= (item.lowStockThreshold || 5)
-    ).length;
-    const healthy = allItems.filter(item => 
-      item.stockQuantity > (item.lowStockThreshold || 5)
-    ).length;
-    
-    setStockDashboard({
-      outOfStockCount: outOfStock,
-      lowStockCount: lowStock,
-      healthyStockCount: healthy,
-      totalItems: allItems.length
-    });
-  } catch (error) {
-    console.error("Failed to calculate stock dashboard:", error);
-    // Set default values on error
-    setStockDashboard({
-      outOfStockCount: 0,
-      lowStockCount: 0,
-      healthyStockCount: 0,
-      totalItems: 0
-    });
-  } finally {
-    setStockDashboardLoading(false);
-  }
-};
+  const fetchStockDashboard = async () => {
+    try {
+      setStockDashboardLoading(true);
+      // Calculate from existing menu items
+      const allItems = [];
 
-const fetchStockItems = async (restaurantId) => {
-  try {
-    const response = await axios.get(`http://localhost:5000/api/menu-items/restaurant/${restaurantId}`);
-    if (Array.isArray(response.data)) {
-      setStockItems(response.data);
-    } else {
+      // Get items for all restaurants
+      for (const restaurant of restaurants) {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/menu-items/restaurant/${restaurant._id}`);
+          if (Array.isArray(response.data)) {
+            allItems.push(...response.data);
+          }
+        } catch (err) {
+          console.log(`Couldn't load items for ${restaurant.name}`);
+        }
+      }
+
+      // Calculate statistics
+      const outOfStock = allItems.filter(item => item.stockQuantity === 0).length;
+      const lowStock = allItems.filter(item =>
+        item.stockQuantity > 0 &&
+        item.stockQuantity <= (item.lowStockThreshold || 5)
+      ).length;
+      const healthy = allItems.filter(item =>
+        item.stockQuantity > (item.lowStockThreshold || 5)
+      ).length;
+
+      setStockDashboard({
+        outOfStockCount: outOfStock,
+        lowStockCount: lowStock,
+        healthyStockCount: healthy,
+        totalItems: allItems.length
+      });
+    } catch (error) {
+      console.error("Failed to calculate stock dashboard:", error);
+      // Set default values on error
+      setStockDashboard({
+        outOfStockCount: 0,
+        lowStockCount: 0,
+        healthyStockCount: 0,
+        totalItems: 0
+      });
+    } finally {
+      setStockDashboardLoading(false);
+    }
+  };
+
+  const fetchStockItems = async (restaurantId) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/menu-items/restaurant/${restaurantId}`);
+      if (Array.isArray(response.data)) {
+        setStockItems(response.data);
+      } else {
+        setStockItems([]);
+      }
+    } catch (error) {
+      console.error("Error fetching stock items:", error);
       setStockItems([]);
+      alert('Failed to load stock information. Please try again.');
     }
-  } catch (error) {
-    console.error("Error fetching stock items:", error);
-    setStockItems([]);
-    alert('Failed to load stock information. Please try again.');
-  }
-};
+  };
 
-const fetchStockHistory = async (itemId) => {
-  try {
-    // If you have a stock history API endpoint, use it here
-    // For now, we'll just set an empty array
-    setStockHistory([]);
-  } catch (error) {
-    console.error("Error fetching stock history:", error);
-    setStockHistory([]);
-  }
-};
+  const fetchStockHistory = async (itemId) => {
+    try {
+      // If you have a stock history API endpoint, use it here
+      // For now, we'll just set an empty array
+      setStockHistory([]);
+    } catch (error) {
+      console.error("Error fetching stock history:", error);
+      setStockHistory([]);
+    }
+  };
 
-const updateStockQuantity = async (itemId) => {
-  try {
-    const token = localStorage.getItem('authToken');
-    
-    // Update the stock quantity
-    await axios.put(
-      `http://localhost:5000/api/stock/item/${itemId}`,
-      { 
-        newQuantity: stockQuantity,
-        notes: stockNote 
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+  const updateStockQuantity = async (itemId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+
+      // Update the stock quantity
+      await axios.put(
+        `http://localhost:5000/api/stock/item/${itemId}`,
+        {
+          newQuantity: stockQuantity,
+          notes: stockNote
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
-      }
+      );
+
+      // Update local state
+      setStockItems(stockItems.map(item => {
+        if (item._id === itemId) {
+          return {
+            ...item,
+            stockQuantity: stockQuantity,
+            isAvailable: stockQuantity > 0
+          };
+        }
+        return item;
+      }));
+
+      // Reset form
+      setStockNote('');
+      setSelectedMenuItem(null);
+
+      // Success message
+      alert('Stock updated successfully!');
+
+      // Update dashboard data
+      fetchStockDashboard();
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      alert(`Failed to update stock: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  const getFilteredStockItems = () => {
+    if (stockFilter === 'all') return stockItems;
+    if (stockFilter === 'outOfStock') return stockItems.filter(item => item.stockQuantity === 0);
+    if (stockFilter === 'lowStock') return stockItems.filter(item =>
+      item.stockQuantity > 0 && item.stockQuantity <= (item.lowStockThreshold || 5)
+    );
+    if (stockFilter === 'healthy') return stockItems.filter(item =>
+      item.stockQuantity > (item.lowStockThreshold || 5)
+    );
+    return stockItems;
+  };
+
+  const handleStockManagementRestaurantSelect = (restaurant) => {
+    setStockManagementRestaurant(restaurant);
+    fetchStockItems(restaurant._id);
+  };
+
+  const handleBackToStockDashboard = () => {
+    setStockManagementRestaurant(null);
+    setSelectedMenuItem(null);
+    fetchStockDashboard(); // Refresh dashboard data
+  };
+
+  const markNotificationAsRead = (notificationId) => {
+    const storedNotifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+    const updatedNotifications = storedNotifications.map(n => 
+      n.id === notificationId ? {...n, read: true} : n
     );
     
-    // Update local state
-    setStockItems(stockItems.map(item => {
-      if (item._id === itemId) {
-        return {
-          ...item,
-          stockQuantity: stockQuantity,
-          isAvailable: stockQuantity > 0
-        };
-      }
-      return item;
-    }));
-    
-    // Reset form
-    setStockNote('');
-    setSelectedMenuItem(null);
-    
-    // Success message
-    alert('Stock updated successfully!');
-    
-    // Update dashboard data
-    fetchStockDashboard();
-  } catch (error) {
-    console.error("Error updating stock:", error);
-    alert(`Failed to update stock: ${error.response?.data?.message || error.message}`);
-  }
-};
-
-const getFilteredStockItems = () => {
-  if (stockFilter === 'all') return stockItems;
-  if (stockFilter === 'outOfStock') return stockItems.filter(item => item.stockQuantity === 0);
-  if (stockFilter === 'lowStock') return stockItems.filter(item => 
-    item.stockQuantity > 0 && item.stockQuantity <= (item.lowStockThreshold || 5)
-  );
-  if (stockFilter === 'healthy') return stockItems.filter(item => 
-    item.stockQuantity > (item.lowStockThreshold || 5)
-  );
-  return stockItems;
-};
-
-const handleStockManagementRestaurantSelect = (restaurant) => {
-  setStockManagementRestaurant(restaurant);
-  fetchStockItems(restaurant._id);
-};
-
-const handleBackToStockDashboard = () => {
-  setStockManagementRestaurant(null);
-  setSelectedMenuItem(null);
-  fetchStockDashboard(); // Refresh dashboard data
-};
+    localStorage.setItem('adminNotifications', JSON.stringify(updatedNotifications));
+    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+  };
 
   return (
     <div className="admin-dashboard">
       <div className="admin-sidebar">
         <h1>Admin Panel</h1>
         <div className="admin-nav">
-          <button 
+          <button
             className={`nav-btn ${activeSection === 'add' ? 'active' : ''}`}
             onClick={() => setActiveSection('add')}
           >
             <FaUtensils /> Add Restaurant
           </button>
-          <button 
+          <button
             className={`nav-btn ${activeSection === 'view' ? 'active' : ''}`}
             onClick={() => setActiveSection('view')}
           >
             <FaList /> View Restaurants
           </button>
-          <button 
+          <button
             className={`nav-btn ${activeSection === 'addMenu' ? 'active' : ''}`}
             onClick={() => setActiveSection('addMenu')}
           >
             <FaPlus /> Add Menu
           </button>
-          <button 
+          <button
             className={`nav-btn ${activeSection === 'manageMenu' ? 'active' : ''}`}
             onClick={() => setActiveSection('manageMenu')}
           >
             <FaUtensils /> Manage Menu
           </button>
-          <button 
+          <button
             className={`nav-btn ${activeSection === 'users' ? 'active' : ''}`}
             onClick={() => setActiveSection('users')}
           >
             <FaUsers /> Users
           </button>
-          <button 
+          <button
             className={`nav-btn ${activeSection === 'orders' ? 'active' : ''}`}
             onClick={() => setActiveSection('orders')}
           >
             <FaList /> Orders
           </button>
-          <button 
+          <button
             className={`nav-btn ${activeSection === 'stockManagement' ? 'active' : ''}`}
             onClick={() => setActiveSection('stockManagement')}
           >
             <FaBoxOpen /> Stock Management
           </button>
-          <button 
+          <button
             className="nav-btn logout-btn"
             onClick={onLogoutClick}
           >
@@ -967,7 +1066,7 @@ const handleBackToStockDashboard = () => {
                   type="text"
                   placeholder="Restaurant Name"
                   value={newRestaurant.name}
-                  onChange={(e) => setNewRestaurant({...newRestaurant, name: e.target.value})}
+                  onChange={(e) => setNewRestaurant({ ...newRestaurant, name: e.target.value })}
                   required
                 />
               </div>
@@ -975,7 +1074,7 @@ const handleBackToStockDashboard = () => {
               <div className="input-field">
                 <select
                   value={newRestaurant.cuisine}
-                  onChange={(e) => setNewRestaurant({...newRestaurant, cuisine: e.target.value})}
+                  onChange={(e) => setNewRestaurant({ ...newRestaurant, cuisine: e.target.value })}
                   required
                 >
                   <option value="">Select Cuisine Type</option>
@@ -988,7 +1087,7 @@ const handleBackToStockDashboard = () => {
               <div className="input-field">
                 <select
                   value={newRestaurant.category}
-                  onChange={(e) => setNewRestaurant({...newRestaurant, category: e.target.value})}
+                  onChange={(e) => setNewRestaurant({ ...newRestaurant, category: e.target.value })}
                   required
                 >
                   <option value="">Select Category</option>
@@ -1005,7 +1104,7 @@ const handleBackToStockDashboard = () => {
                   type="text"
                   placeholder="Address"
                   value={newRestaurant.address}
-                  onChange={(e) => setNewRestaurant({...newRestaurant, address: e.target.value})}
+                  onChange={(e) => setNewRestaurant({ ...newRestaurant, address: e.target.value })}
                   required
                 />
               </div>
@@ -1015,7 +1114,7 @@ const handleBackToStockDashboard = () => {
                   type="url"
                   placeholder="Image URL"
                   value={newRestaurant.image}
-                  onChange={(e) => setNewRestaurant({...newRestaurant, image: e.target.value})}
+                  onChange={(e) => setNewRestaurant({ ...newRestaurant, image: e.target.value })}
                   required
                 />
               </div>
@@ -1035,8 +1134,8 @@ const handleBackToStockDashboard = () => {
                 <div key={restaurant._id} className="restaurant-card">
                   <div className="rest-container">
                     <div className="rest-image">
-                      <img 
-                        src={restaurant.image} 
+                      <img
+                        src={restaurant.image}
                         alt={restaurant.name}
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/400x200?text=Restaurant';
@@ -1056,7 +1155,7 @@ const handleBackToStockDashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <button 
+                  <button
                     className="delete-btn"
                     onClick={() => handleDelete(restaurant._id)}
                   >
@@ -1097,7 +1196,7 @@ const handleBackToStockDashboard = () => {
                         <td>{user.email}</td>
                         <td>{user.password}</td>
                         <td>
-                          <button 
+                          <button
                             className="delete-user-btn"
                             onClick={() => handleDeleteUser(user.id || user._id)}
                           >
@@ -1120,15 +1219,15 @@ const handleBackToStockDashboard = () => {
             {!addMenuSelectedRestaurant ? (
               <div className="restaurant-select-grid">
                 {restaurants.map(restaurant => (
-                  <div 
-                    key={restaurant._id} 
+                  <div
+                    key={restaurant._id}
                     className="restaurant-card"
                     onClick={() => setAddMenuSelectedRestaurant(restaurant)}
                   >
                     <div className="rest-container">
                       <div className="rest-image">
-                        <img 
-                          src={restaurant.image} 
+                        <img
+                          src={restaurant.image}
                           alt={restaurant.name}
                           onError={(e) => {
                             e.target.src = 'https://via.placeholder.com/400x200?text=Restaurant';
@@ -1156,7 +1255,7 @@ const handleBackToStockDashboard = () => {
                 <div className="menu-form-container">
                   <div className="form-header">
                     <h3>Add New Menu Item</h3>
-                    <button 
+                    <button
                       className="back-to-rest-btn"
                       onClick={() => setAddMenuSelectedRestaurant(null)}
                     >
@@ -1172,7 +1271,7 @@ const handleBackToStockDashboard = () => {
                         type="text"
                         placeholder="Item name"
                         value={menuForm.name}
-                        onChange={(e) => setMenuForm({...menuForm, name: e.target.value})}
+                        onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })}
                         required
                       />
                     </div>
@@ -1181,7 +1280,7 @@ const handleBackToStockDashboard = () => {
                       <textarea
                         placeholder="Description"
                         value={menuForm.description}
-                        onChange={(e) => setMenuForm({...menuForm, description: e.target.value})}
+                        onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })}
                         required
                       />
                     </div>
@@ -1191,7 +1290,7 @@ const handleBackToStockDashboard = () => {
                         type="number"
                         placeholder="Price in ₹"
                         value={menuForm.price}
-                        onChange={(e) => setMenuForm({...menuForm, price: e.target.value})}
+                        onChange={(e) => setMenuForm({ ...menuForm, price: e.target.value })}
                         required
                       />
                     </div>
@@ -1201,15 +1300,15 @@ const handleBackToStockDashboard = () => {
                         type="text"
                         placeholder="Image URL"
                         value={menuForm.image}
-                        onChange={(e) => setMenuForm({...menuForm, image: e.target.value})}
+                        onChange={(e) => setMenuForm({ ...menuForm, image: e.target.value })}
                         required
                       />
                     </div>
-                    
+
                     <div className="input-field">
                       <select
                         value={menuForm.category}
-                        onChange={(e) => setMenuForm({...menuForm, category: e.target.value})}
+                        onChange={(e) => setMenuForm({ ...menuForm, category: e.target.value })}
                         required
                       >
                         <option value="">Select Category</option>
@@ -1226,7 +1325,7 @@ const handleBackToStockDashboard = () => {
                         <input
                           type="checkbox"
                           checked={menuForm.isVeg}
-                          onChange={(e) => setMenuForm({...menuForm, isVeg: e.target.checked})}
+                          onChange={(e) => setMenuForm({ ...menuForm, isVeg: e.target.checked })}
                         />
                         <span>Vegetarian</span>
                       </label>
@@ -1244,7 +1343,7 @@ const handleBackToStockDashboard = () => {
           <section className="menu-management">
             {!manageMenuSelectedRestaurant && (
               <div className="category-filters">
-                <button 
+                <button
                   className={`filter-btn ${activeFilter === 'All' ? 'active' : ''}`}
                   onClick={() => setActiveFilter('All')}
                 >
@@ -1264,8 +1363,8 @@ const handleBackToStockDashboard = () => {
             {!manageMenuSelectedRestaurant ? (
               <div className="restaurant-select-grid">
                 {getFilteredRestaurants().map(restaurant => (
-                  <div 
-                    key={restaurant._id} 
+                  <div
+                    key={restaurant._id}
                     className="restaurant-card"
                     onClick={() => {
                       setManageMenuSelectedRestaurant(restaurant);
@@ -1274,8 +1373,8 @@ const handleBackToStockDashboard = () => {
                   >
                     <div className="rest-container">
                       <div className="rest-image">
-                        <img 
-                          src={restaurant.image} 
+                        <img
+                          src={restaurant.image}
                           alt={restaurant.name}
                           onError={(e) => {
                             e.target.src = 'https://via.placeholder.com/400x200?text=Restaurant';
@@ -1302,7 +1401,7 @@ const handleBackToStockDashboard = () => {
               <div className="menu-items-container">
                 <div className="header-title">
                   <h2>Menu Items for {manageMenuSelectedRestaurant.name}</h2>
-                  <button 
+                  <button
                     className="back-to-rest-btn"
                     onClick={() => setManageMenuSelectedRestaurant(null)}
                   >
@@ -1310,37 +1409,37 @@ const handleBackToStockDashboard = () => {
                   </button>
                 </div>
                 <div className="menu-category-filters">
-                  <button 
+                  <button
                     className={`menu-filter-btn ${menuFilter === 'All' ? 'active' : ''}`}
                     onClick={() => setMenuFilter('All')}
                   >
                     All Items
                   </button>
-                  <button 
+                  <button
                     className={`menu-filter-btn ${menuFilter === 'Veg' ? 'active' : ''}`}
                     onClick={() => setMenuFilter('Veg')}
                   >
                     Vegetarian
                   </button>
-                  <button 
+                  <button
                     className={`menu-filter-btn ${menuFilter === 'Starters' ? 'active' : ''}`}
                     onClick={() => setMenuFilter('Starters')}
                   >
                     Starters
                   </button>
-                  <button 
+                  <button
                     className={`menu-filter-btn ${menuFilter === 'Main Course' ? 'active' : ''}`}
                     onClick={() => setMenuFilter('Main Course')}
                   >
                     Main Course
                   </button>
-                  <button 
+                  <button
                     className={`menu-filter-btn ${menuFilter === 'Desserts' ? 'active' : ''}`}
                     onClick={() => setMenuFilter('Desserts')}
                   >
                     Desserts
                   </button>
-                  <button 
+                  <button
                     className={`menu-filter-btn ${menuFilter === 'Beverages' ? 'active' : ''}`}
                     onClick={() => setMenuFilter('Beverages')}
                   >
@@ -1358,7 +1457,7 @@ const handleBackToStockDashboard = () => {
                         <p className="category">{item.category}</p>
                         {item.isVeg && <span className="veg-badge">Veg</span>}
                       </div>
-                      <button 
+                      <button
                         className="delete-btn"
                         onClick={() => handleDeleteMenuItem(item._id)}
                       >
@@ -1377,38 +1476,38 @@ const handleBackToStockDashboard = () => {
             <h2>Order Management</h2>
             <div className="orders-header">
               <div className="order-tabs">
-                <button 
+                <button
                   className={`order-tab ${activeTab === 'new' ? 'active' : ''}`}
                   onClick={() => setActiveTab('new')}
                 >
                   New Orders
                   {newOrdersCount > 0 && <span className="order-badge">{newOrdersCount}</span>}
                 </button>
-                
-                <button 
+
+                <button
                   className={`order-tab ${activeTab === 'processing' ? 'active' : ''}`}
                   onClick={() => setActiveTab('processing')}
                 >
                   Processing
                   {processingOrdersCount > 0 && <span className="order-badge">{processingOrdersCount}</span>}
                 </button>
-                
-                <button 
+
+                <button
                   className={`order-tab ${activeTab === 'delivery' ? 'active' : ''}`}
                   onClick={() => setActiveTab('delivery')}
                 >
                   Out for Delivery
                   {deliveryOrdersCount > 0 && <span className="order-badge">{deliveryOrdersCount}</span>}
                 </button>
-                
-                <button 
+
+                <button
                   className={`order-tab ${activeTab === 'completed' ? 'active' : ''}`}
                   onClick={() => setActiveTab('completed')}
                 >
                   Completed
                 </button>
-                
-                <button 
+
+                <button
                   className={`order-tab ${activeTab === 'cancelled' ? 'active' : ''}`}
                   onClick={() => setActiveTab('cancelled')}
                 >
@@ -1416,9 +1515,9 @@ const handleBackToStockDashboard = () => {
                 </button>
               </div>
               <div className="search-bar">
-                <input 
-                  type="text" 
-                  placeholder="Search orders..." 
+                <input
+                  type="text"
+                  placeholder="Search orders..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -1431,9 +1530,9 @@ const handleBackToStockDashboard = () => {
               // Update your order card rendering to ensure customer details are displayed
               <div className="orders-list">
                 {displayedOrders.map(order => (
-                  <div 
-                    key={order._id} 
-                    className="order-card" 
+                  <div
+                    key={order._id}
+                    className="order-card"
                     data-status={order.status}
                   >
                     <div className="order-header">
@@ -1445,21 +1544,33 @@ const handleBackToStockDashboard = () => {
                         {order.status?.replace(/-/g, ' ')}
                       </div>
                     </div>
-                    
+
                     <div className="order-restaurant">
                       <strong>Restaurant:</strong> {order.restaurantName || "Restaurant"}
                     </div>
-                    
+
                     <div className="order-customer">
                       <strong>Customer:</strong> {order.customer?.name || 'Anonymous'}
                       {order.customer?.phone && <div className="customer-phone">{order.customer.phone}</div>}
                     </div>
-                    
+
+                    {/* Display delivery partner info if assigned */}
+                    {order.deliveryPartnerId && (
+                      <div className="order-delivery-partner">
+                        <strong>Delivery Partner:</strong> {order.deliveryPartnerName || 'Assigned'}
+                        <span className={`delivery-status ${order.deliveryStatus || ''}`}>
+                          {order.deliveryStatus === 'accepted' ? 'Accepted' : 
+                          order.deliveryStatus === 'picked_up' ? 'Picked Up' : 
+                          order.deliveryStatus === 'delivered' ? 'Delivered' : ''}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="order-items-preview">
                       <strong>Items:</strong> {order.items.length}
                       <span className="order-total">₹{order.total?.toFixed(2)}</span>
                     </div>
-                    
+
                     <div className="order-actions">
                       {/* New orders - show Accept/Reject */}
                       {(order.status === 'order-received' || order.adminStatus === 'pending') && (
@@ -1472,71 +1583,30 @@ const handleBackToStockDashboard = () => {
                           </button>
                         </>
                       )}
-                      
+
                       {/* Accepted orders - show Start Preparing */}
                       {order.status === 'accepted' && (
                         <button className="action-btn prepare" onClick={() => handleStartPreparing(order._id)}>
                           <FaHourglassHalf /> Start Preparing
                         </button>
                       )}
-                      
-                      {/* Preparing orders - show Out for Delivery */}
-                      {order.status === 'preparing' && (
-                        <button className="action-btn deliver" onClick={() => handleOutForDelivery(order._id)}>
-                          <FaMotorcycle /> Out for Delivery
+
+                      {/* Preparing orders - show Ready for Pickup */}
+                      {order.status === 'preparing' && !order.isReadyForDelivery && (
+                        <button 
+                          className="action-btn ready-pickup"
+                          onClick={() => handleReadyForPickup(order._id)}
+                        >
+                          <FaMotorcycle /> Ready for Pickup
                         </button>
                       )}
-                      
-                      {/* Out for delivery - show Mark as Delivered */}
-                      {order.status === 'out-for-delivery' && (
-                        <button className="action-btn complete" onClick={() => handleDelivered(order._id)}>
-                          <FaCheck /> Mark as Delivered
-                        </button>
-                      )}
-                      
+
                       {/* For delivered or cancelled orders, show status indicator */}
                       {(order.status === 'delivered' || order.status === 'cancelled') && (
                         <div className="order-status-indicator">
                           {order.status === 'delivered' ? 'Completed' : 'Cancelled'}
                         </div>
                       )}
-                    </div>
-                    <div className="order-status-actions">
-                      <button 
-                        className="status-btn received-btn" 
-                        onClick={() => updateOrderStatus(order._id, 'order-received')}
-                      >
-                        Order Received
-                      </button>
-                      
-                      <button 
-                        className="status-btn confirmed-btn" 
-                        onClick={() => updateOrderStatus(order._id, 'confirmed')}
-                      >
-                        Confirm
-                      </button>
-                      
-                      <button 
-                        className="status-btn preparing-btn" 
-                        onClick={() => updateOrderStatus(order._id, 'preparing')}
-                      >
-                        Preparing
-                      </button>
-                      
-                      <button 
-                        className="status-btn out-for-delivery-btn" 
-                        onClick={() => updateOrderStatus(order._id, 'out-for-delivery')}
-                      >
-                        Out for Delivery
-                      </button>
-                      
-                      {/* Add the Delivered button */}
-                      <button 
-                        className="status-btn delivered-btn" 
-                        onClick={() => updateOrderStatus(order._id, 'delivered')}
-                      >
-                        Delivered
-                      </button>
                     </div>
                   </div>
                 ))}
@@ -1584,8 +1654,8 @@ const handleBackToStockDashboard = () => {
                 <div className="order-actions">
                   <h4>Update Status</h4>
                   {getNextStatusOptions(selectedOrder.status).map(option => (
-                    <button 
-                      key={option.status} 
+                    <button
+                      key={option.status}
                       className="status-btn"
                       onClick={() => updateOrderStatus(selectedOrder._id, option.status)}
                     >
@@ -1604,247 +1674,264 @@ const handleBackToStockDashboard = () => {
         )}
 
         {/* Add this section to your main content area, before the final closing div */}
-{activeSection === 'stockManagement' && (
-  <section className="stock-management-section">
-    <h2>Stock Management</h2>
-    {!stockManagementRestaurant ? (
-      <>
-        <div className="stock-dashboard-header">
-          <h3>Stock Overview</h3>
-          <button 
-            className="refresh-btn"
-            onClick={fetchStockDashboard}
-            disabled={stockDashboardLoading}
-          >
-            <FaSync className={stockDashboardLoading ? 'spinning' : ''} /> 
-            {stockDashboardLoading ? 'Refreshing...' : 'Refresh Data'}
-          </button>
-        </div>
-        
-        <div className="stock-dashboard">
-          {stockDashboardLoading ? (
-            <div className="loading-spinner"></div>
-          ) : (
-            <>
-              <div className="stock-stat-card">
-                <div className="stock-stat-icon out">
-                  <FaTimes />
+        {activeSection === 'stockManagement' && (
+          <section className="stock-management-section">
+            <h2>Stock Management</h2>
+            {!stockManagementRestaurant ? (
+              <>
+                <div className="stock-dashboard-header">
+                  <h3>Stock Overview</h3>
+                  <button
+                    className="refresh-btn"
+                    onClick={fetchStockDashboard}
+                    disabled={stockDashboardLoading}
+                  >
+                    <FaSync className={stockDashboardLoading ? 'spinning' : ''} />
+                    {stockDashboardLoading ? 'Refreshing...' : 'Refresh Data'}
+                  </button>
                 </div>
-                <div className="stock-stat-details">
-                  <h3>Out of Stock</h3>
-                  <p className="stock-stat-value">{stockDashboard.outOfStockCount}</p>
-                  <p className="stock-stat-desc">Items need attention</p>
+
+                <div className="stock-dashboard">
+                  {stockDashboardLoading ? (
+                    <div className="loading-spinner"></div>
+                  ) : (
+                    <>
+                      <div className="stock-stat-card">
+                        <div className="stock-stat-icon out">
+                          <FaTimes />
+                        </div>
+                        <div className="stock-stat-details">
+                          <h3>Out of Stock</h3>
+                          <p className="stock-stat-value">{stockDashboard.outOfStockCount}</p>
+                          <p className="stock-stat-desc">Items need attention</p>
+                        </div>
+                      </div>
+
+                      <div className="stock-stat-card">
+                        <div className="stock-stat-icon low">
+                          <FaHourglassHalf />
+                        </div>
+                        <div className="stock-stat-details">
+                          <h3>Low Stock</h3>
+                          <p className="stock-stat-value">{stockDashboard.lowStockCount}</p>
+                          <p className="stock-stat-desc">Items running low</p>
+                        </div>
+                      </div>
+
+                      <div className="stock-stat-card">
+                        <div className="stock-stat-icon healthy">
+                          <FaCheck />
+                        </div>
+                        <div className="stock-stat-details">
+                          <h3>Healthy Stock</h3>
+                          <p className="stock-stat-value">{stockDashboard.healthyStockCount}</p>
+                          <p className="stock-stat-desc">Items with good stock</p>
+                        </div>
+                      </div>
+
+                      <div className="stock-stat-card">
+                        <div className="stock-stat-icon total">
+                          <FaWarehouse />
+                        </div>
+                        <div className="stock-stat-details">
+                          <h3>Total Items</h3>
+                          <p className="stock-stat-value">{stockDashboard.totalItems}</p>
+                          <p className="stock-stat-desc">In inventory</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-              
-              <div className="stock-stat-card">
-                <div className="stock-stat-icon low">
-                  <FaHourglassHalf />
-                </div>
-                <div className="stock-stat-details">
-                  <h3>Low Stock</h3>
-                  <p className="stock-stat-value">{stockDashboard.lowStockCount}</p>
-                  <p className="stock-stat-desc">Items running low</p>
-                </div>
-              </div>
-              
-              <div className="stock-stat-card">
-                <div className="stock-stat-icon healthy">
-                  <FaCheck />
-                </div>
-                <div className="stock-stat-details">
-                  <h3>Healthy Stock</h3>
-                  <p className="stock-stat-value">{stockDashboard.healthyStockCount}</p>
-                  <p className="stock-stat-desc">Items with good stock</p>
-                </div>
-              </div>
-              
-              <div className="stock-stat-card">
-                <div className="stock-stat-icon total">
-                  <FaWarehouse />
-                </div>
-                <div className="stock-stat-details">
-                  <h3>Total Items</h3>
-                  <p className="stock-stat-value">{stockDashboard.totalItems}</p>
-                  <p className="stock-stat-desc">In inventory</p>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        
-        <h3>Select Restaurant to Manage Stock</h3>
-        <div className="restaurant-select-grid">
-          {restaurants.map(restaurant => (
-            <div 
-              key={restaurant._id} 
-              className="restaurant-card"
-              onClick={() => handleStockManagementRestaurantSelect(restaurant)}
-            >
-              <div className="rest-container">
-                <div className="rest-image">
-                  <img 
-                    src={restaurant.image} 
-                    alt={restaurant.name}
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/400x200?text=Restaurant';
-                    }}
-                  />
-                </div>
-                <div className="rest-info">
-                  <div className="info-content">
-                    <div className="left-content">
-                      <h3>{restaurant.name}</h3>
-                      <p className="address">📍 {restaurant.address}</p>
-                    </div>
-                    <div className="right-content">
-                      <p className="cuisine">🍽️ {restaurant.cuisine}</p>
-                      <p className="category">🏷️ {restaurant.category}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </>
-    ) : (
-      <div className="stock-management-container">
-        <div className="stock-header">
-          <h3>Manage Stock for {stockManagementRestaurant.name}</h3>
-          <button 
-            className="back-to-rest-btn"
-            onClick={handleBackToStockDashboard}
-          >
-            <FaArrowLeft /> Back to Restaurants
-          </button>
-        </div>
-        
-        <div className="stock-filters">
-          <button
-            className={`filter-btn ${stockFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setStockFilter('all')}
-          >
-            All Items
-          </button>
-          <button
-            className={`filter-btn ${stockFilter === 'outOfStock' ? 'active' : ''}`}
-            onClick={() => setStockFilter('outOfStock')}
-          >
-            Out of Stock
-          </button>
-          <button
-            className={`filter-btn ${stockFilter === 'lowStock' ? 'active' : ''}`}
-            onClick={() => setStockFilter('lowStock')}
-          >
-            Low Stock
-          </button>
-          <button
-            className={`filter-btn ${stockFilter === 'healthy' ? 'active' : ''}`}
-            onClick={() => setStockFilter('healthy')}
-          >
-            Healthy Stock
-          </button>
-        </div>
-        
-        <div className="stock-items-container">
-          <table className="stock-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Category</th>
-                <th>Current Stock</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getFilteredStockItems().map(item => (
-                <tr key={item._id}>
-                  <td>
-                    <div className="item-info">
-                      <img src={item.image} alt={item.name} className="item-thumbnail" />
-                      <div>
-                        <div className="item-name">{item.name}</div>
-                        <div className="item-price">₹{item.price}</div>
+
+                <h3>Select Restaurant to Manage Stock</h3>
+                <div className="restaurant-select-grid">
+                  {restaurants.map(restaurant => (
+                    <div
+                      key={restaurant._id}
+                      className="restaurant-card"
+                      onClick={() => handleStockManagementRestaurantSelect(restaurant)}
+                    >
+                      <div className="rest-container">
+                        <div className="rest-image">
+                          <img
+                            src={restaurant.image}
+                            alt={restaurant.name}
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/400x200?text=Restaurant';
+                            }}
+                          />
+                        </div>
+                        <div className="rest-info">
+                          <div className="info-content">
+                            <div className="left-content">
+                              <h3>{restaurant.name}</h3>
+                              <p className="address">📍 {restaurant.address}</p>
+                            </div>
+                            <div className="right-content">
+                              <p className="cuisine">🍽️ {restaurant.cuisine}</p>
+                              <p className="category">🏷️ {restaurant.category}</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </td>
-                  <td>{item.category}</td>
-                  <td>{item.stockQuantity || 0}</td>
-                  <td>
-                    <span className={`stock-status ${
-                      item.stockQuantity === 0 ? 'out-of-stock' :
-                      item.stockQuantity <= (item.lowStockThreshold || 5) ? 'low-stock' :
-                      'in-stock'
-                    }`}>
-                      {item.stockQuantity === 0 ? 'Out of Stock' :
-                       item.stockQuantity <= (item.lowStockThreshold || 5) ? 'Low Stock' :
-                       'In Stock'}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      className="update-stock-btn"
-                      onClick={() => {
-                        setSelectedMenuItem(item);
-                        setStockQuantity(item.stockQuantity || 0);
-                      }}
-                    >
-                      Update Stock
-                    </button>
-                  </td>
-                </tr>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="stock-management-container">
+                <div className="stock-header">
+                  <h3>Manage Stock for {stockManagementRestaurant.name}</h3>
+                  <button
+                    className="back-to-rest-btn"
+                    onClick={handleBackToStockDashboard}
+                  >
+                    <FaArrowLeft /> Back to Restaurants
+                  </button>
+                </div>
+
+                <div className="stock-filters">
+                  <button
+                    className={`filter-btn ${stockFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setStockFilter('all')}
+                  >
+                    All Items
+                  </button>
+                  <button
+                    className={`filter-btn ${stockFilter === 'outOfStock' ? 'active' : ''}`}
+                    onClick={() => setStockFilter('outOfStock')}
+                  >
+                    Out of Stock
+                  </button>
+                  <button
+                    className={`filter-btn ${stockFilter === 'lowStock' ? 'active' : ''}`}
+                    onClick={() => setStockFilter('lowStock')}
+                  >
+                    Low Stock
+                  </button>
+                  <button
+                    className={`filter-btn ${stockFilter === 'healthy' ? 'active' : ''}`}
+                    onClick={() => setStockFilter('healthy')}
+                  >
+                    Healthy Stock
+                  </button>
+                </div>
+
+                <div className="stock-items-container">
+                  <table className="stock-table">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {getFilteredStockItems().map(item => (
+                        <tr key={item._id}>
+                          <td>
+                            <div className="item-info">
+                              <img src={item.image} alt={item.name} className="item-thumbnail" />
+                              <div>
+                                <div className="item-name">{item.name}</div>
+                                <div className="item-price">₹{item.price}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>{item.category}</td>
+                          <td>{item.stockQuantity || 0}</td>
+                          <td>
+                            <span className={`stock-status ${
+                              item.stockQuantity === 0 ? 'out-of-stock' :
+                                item.stockQuantity <= (item.lowStockThreshold || 5) ? 'low-stock' :
+                                  'in-stock'
+                            }`}>
+                              {item.stockQuantity === 0 ? 'Out of Stock' :
+                                item.stockQuantity <= (item.lowStockThreshold || 5) ? 'Low Stock' :
+                                  'In Stock'}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              className="update-stock-btn"
+                              onClick={() => {
+                                setSelectedMenuItem(item);
+                                setStockQuantity(item.stockQuantity || 0);
+                              }}
+                            >
+                              Update Stock
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {selectedMenuItem && (
+                  <div className="stock-update-modal">
+                    <div className="modal-content">
+                      <h3>Update Stock: {selectedMenuItem.name}</h3>
+                      <div className="form-group">
+                        <label>Current Stock: {selectedMenuItem.stockQuantity || 0}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={stockQuantity}
+                          onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Notes (optional):</label>
+                        <textarea
+                          value={stockNote}
+                          onChange={(e) => setStockNote(e.target.value)}
+                          placeholder="Reason for stock update"
+                        ></textarea>
+                      </div>
+                      <div className="modal-actions">
+                        <button
+                          className="cancel-btn"
+                          onClick={() => {
+                            setSelectedMenuItem(null);
+                            setStockNote('');
+                          }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="save-btn"
+                          onClick={() => updateStockQuantity(selectedMenuItem._id)}
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Delivery Partner Notifications */}
+        {notifications.length > 0 && (
+          <div className="delivery-notifications">
+            <h3>Delivery Partner Notifications</h3>
+            <div className="notification-list">
+              {notifications.map(notification => (
+                <div key={notification.id} className="notification-item">
+                  <p>{notification.message}</p>
+                  <div className="notification-actions">
+                    <button onClick={() => markNotificationAsRead(notification.id)}>Dismiss</button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {selectedMenuItem && (
-          <div className="stock-update-modal">
-            <div className="modal-content">
-              <h3>Update Stock: {selectedMenuItem.name}</h3>
-              <div className="form-group">
-                <label>Current Stock: {selectedMenuItem.stockQuantity || 0}</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={stockQuantity}
-                  onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Notes (optional):</label>
-                <textarea
-                  value={stockNote}
-                  onChange={(e) => setStockNote(e.target.value)}
-                  placeholder="Reason for stock update"
-                ></textarea>
-              </div>
-              <div className="modal-actions">
-                <button 
-                  className="cancel-btn"
-                  onClick={() => {
-                    setSelectedMenuItem(null);
-                    setStockNote('');
-                  }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="save-btn"
-                  onClick={() => updateStockQuantity(selectedMenuItem._id)}
-                >
-                  Save Changes
-                </button>
-              </div>
             </div>
           </div>
         )}
-      </div>
-    )}
-  </section>
-)}
       </div>
     </div>
   );
