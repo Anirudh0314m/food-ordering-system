@@ -4,3 +4,286 @@
 }
 
 /* Add styles for the earnings page */
+
+.earnings-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.dashboard-header {
+  background-color: #ffffff;
+  padding: 15px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #FF5A5F;
+}
+
+.logo h1 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.logo svg {
+  font-size: 1.5rem;
+}
+
+.dashboard-nav {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #555;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.nav-item:hover {
+  background-color: #f5f5f5;
+}
+
+.nav-item.active {
+  color: #FF5A5F;
+  background-color: rgba(255, 90, 95, 0.1);
+  font-weight: 500;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.logout-button:hover {
+  background-color: #f5f5f5;
+}
+
+.dashboard-content {
+  padding: 20px;
+  flex: 1;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* Earnings Overview Styles */
+.earnings-overview {
+  margin-bottom: 30px;
+}
+
+.earnings-overview h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.earnings-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.earnings-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.earnings-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.3rem;
+}
+
+.earnings-icon.today {
+  background-color: #FF5A5F;
+}
+
+.earnings-icon.week {
+  background-color: #00A699;
+}
+
+.earnings-icon.month {
+  background-color: #767676;
+}
+
+.earnings-icon.total {
+  background-color: #484848;
+}
+
+.earnings-details h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.earnings-details .amount {
+  margin: 5px 0 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Earnings History Styles */
+.earnings-history {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.history-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.history-filters {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.filter-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 5px 15px;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filter-btn:hover {
+  border-color: #ccc;
+  background-color: #f9f9f9;
+}
+
+.filter-btn.active {
+  background-color: #FF5A5F;
+  color: white;
+  border-color: #FF5A5F;
+}
+
+.no-earnings-message {
+  text-align: center;
+  padding: 40px 0;
+  color: #666;
+}
+
+.earnings-table-container {
+  overflow-x: auto;
+}
+
+.earnings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.earnings-table th, 
+.earnings-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.earnings-table th {
+  background-color: #f9f9f9;
+  font-weight: 500;
+  color: #555;
+}
+
+.earnings-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.earning-amount {
+  font-weight: 500;
+  color: #00A699;
+}
+
+.earnings-table tfoot {
+  font-weight: 600;
+}
+
+.earnings-table tfoot td {
+  border-top: 2px solid #eee;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .earnings-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .history-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .history-filters {
+    width: 100%;
+  }
+}

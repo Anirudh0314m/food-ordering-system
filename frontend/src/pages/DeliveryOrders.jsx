@@ -1,240 +1,377 @@
 import React, { useState, useEffect } from 'react';
-import { FaClipboardList, FaCheck, FaMapMarkerAlt, FaUser, FaClock, FaMoneyBillWave } from 'react-icons/fa';
-import DeliveryNavbar from '../components/DeliveryNavbar';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaMotorcycle, FaWallet, FaClipboardList, FaChartLine, 
+         FaSignOutAlt, FaUser, FaSearch, FaEye } from 'react-icons/fa';
 import '../styles/DeliveryOrders.css';
 
 const DeliveryOrders = ({ handleLogout }) => {
-  const [isOnline, setIsOnline] = useState(false);
+  const navigate = useNavigate();
   const [partnerName, setPartnerName] = useState('');
-  const [currentLocation, setCurrentLocation] = useState('');
-  const [filter, setFilter] = useState('active');
+  const [partnerId, setPartnerId] = useState('');
   const [orders, setOrders] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  
   useEffect(() => {
-    // Get partner info from localStorage
-    const name = localStorage.getItem('partnerName');
-    setPartnerName(name || 'Delivery Partner');
+    // Check authentication
+    const token = localStorage.getItem('authToken');
+    const role = localStorage.getItem('userRole');
     
-    // Check online status from localStorage or set default
-    const status = localStorage.getItem('isOnline') === 'true';
-    setIsOnline(status);
+    if (!token || role !== 'delivery_partner') {
+      navigate('/delivery/login');
+      return;
+    }
     
-    // Get current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords = `${position.coords.latitude.toFixed(3)}, ${position.coords.longitude.toFixed(3)}`;
-          setCurrentLocation(coords);
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          setCurrentLocation('Location unavailable');
+    // Load partner information
+    const name = localStorage.getItem('partnerName') || 'Delivery Partner';
+    setPartnerName(name);
+    
+    // Get partner ID
+    const id = localStorage.getItem('partnerId');
+    setPartnerId(id);
+    
+    // Load order history
+    loadOrderHistory();
+  }, [navigate]);
+  
+  const loadOrderHistory = () => {
+    setLoading(true);
+    
+    try {
+      // Get partner ID
+      const id = localStorage.getItem('partnerId');
+      if (!id) {
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+      
+      // Get all orders from localStorage (both admin and user)
+      const adminOrders = JSON.parse(localStorage.getItem('adminOrders') || '[]');
+      const userOrders = JSON.parse(localStorage.getItem('foodAppOrders') || '[]');
+      
+      // Combine and filter orders delivered by this partner
+      const allOrders = [...adminOrders, ...userOrders];
+      const uniqueOrders = allOrders.reduce((unique, order) => {
+        if (!unique.some(o => o._id === order._id) && 
+            order.deliveryPartnerId === id) {
+          unique.push(order);
         }
+        return unique;
+      }, []);
+      
+      setOrders(uniqueOrders);
+    } catch (error) {
+      console.error("Error loading order history:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const getFilteredOrders = () => {
+    let filtered = [...orders];
+    
+    // Filter by tab
+    if (activeTab === 'completed') {
+      filtered = filtered.filter(order => order.status === 'delivered');
+    } else if (activeTab === 'cancelled') {
+      filtered = filtered.filter(order => order.status === 'cancelled');
+    }
+    
+    // Filter by search term
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(order => 
+        order._id.toLowerCase().includes(term) ||
+        order.restaurantName?.toLowerCase().includes(term) ||
+        order.customer?.name?.toLowerCase().includes(term) ||
+        order.address?.toLowerCase().includes(term)
       );
     }
     
-    // Load mock orders data
-    loadMockOrders();
-    
-    setIsLoading(false);
-  }, []);
-  
-  const loadMockOrders = () => {
-    const mockOrders = [
-      {
-        id: 'ORD12345',
-        status: 'active',
-        restaurant: {
-          name: 'Burger Palace',
-          address: '123 Main St, City'
-        },
-        customer: {
-          name: 'John Doe',
-          address: '456 Oak Ave, City'
-        },
-        createdAt: new Date(Date.now() - 30 * 60000).toISOString(), // 30 mins ago
-        amount: 450,
-        deliveryFee: 50
-      },
-      {
-        id: 'ORD67890',
-        status: 'completed',
-        restaurant: {
-          name: 'Pizza Corner',
-          address: '789 Pine St, City'
-        },
-        customer: {
-          name: 'Alice Smith',
-          address: '101 Elm St, City'
-        },
-        createdAt: new Date(Date.now() - 120 * 60000).toISOString(), // 2 hours ago
-        amount: 650,
-        deliveryFee: 75
-      },
-      {
-        id: 'ORD54321',
-        status: 'completed',
-        restaurant: {
-          name: 'Taco Spot',
-          address: '321 Maple Ave, City'
-        },
-        customer: {
-          name: 'Bob Johnson',
-          address: '555 Cedar Rd, City'
-        },
-        createdAt: new Date(Date.now() - 240 * 60000).toISOString(), // 4 hours ago
-        amount: 350,
-        deliveryFee: 45
-      }
-    ];
-    
-    setOrders(mockOrders);
+    return filtered;
   };
   
-  const toggleOnlineStatus = () => {
-    const newStatus = !isOnline;
-    setIsOnline(newStatus);
-    localStorage.setItem('isOnline', newStatus.toString());
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
   
-  const updateOrderStatus = (orderId, status) => {
-    setOrders(
-      orders.map(order => 
-        order.id === orderId 
-          ? { ...order, status } 
-          : order
-      )
-    );
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
   
-  const formatOrderTime = (dateString) => {
-    const orderDate = new Date(dateString);
-    const now = new Date();
-    const diffMinutes = Math.floor((now - orderDate) / (1000 * 60));
+  const getDeliveryTime = (order) => {
+    if (!order.statusHistory) return 'N/A';
     
-    if (diffMinutes < 60) {
-      return `${diffMinutes} mins ago`;
-    } else if (diffMinutes < 1440) {
-      const hours = Math.floor(diffMinutes / 60);
-      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    } else {
-      const days = Math.floor(diffMinutes / 1440);
-      return `${days} day${days > 1 ? 's' : ''} ago`;
+    const startEvent = order.statusHistory.find(s => s.status === 'accepted' || s.status === 'out-for-delivery');
+    const endEvent = order.statusHistory.find(s => s.status === 'delivered');
+    
+    if (!startEvent || !endEvent) return 'N/A';
+    
+    const startTime = new Date(startEvent.timestamp);
+    const endTime = new Date(endEvent.timestamp);
+    const diffMinutes = Math.floor((endTime - startTime) / (1000 * 60));
+    
+    return `${diffMinutes} min`;
+  };
+  
+  const getOrderAmount = (order) => {
+    return order.deliveryFee || 40;
+  };
+  
+  const getOrderStatus = (status) => {
+    switch (status) {
+      case 'delivered': return 'Completed';
+      case 'cancelled': return 'Cancelled';
+      default: return status.replace(/-/g, ' ');
     }
   };
   
-  // Filter orders based on the selected filter
-  const filteredOrders = orders.filter(order => {
-    if (filter === 'all') return true;
-    if (filter === 'active') return order.status === 'active';
-    if (filter === 'completed') return order.status === 'completed';
-    return true;
-  });
-
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
-
+  const filteredOrders = getFilteredOrders();
+  
   return (
-    <div className="delivery-orders-container">
-      <DeliveryNavbar 
-        isOnline={isOnline}
-        toggleOnlineStatus={toggleOnlineStatus}
-        partnerName={partnerName}
-        currentLocation={currentLocation}
-        handleLogout={handleLogout}
-      />
-      
-      <div className="orders-container">
-        <div className="orders-header">
-          <h1>Your Orders</h1>
-          <div className="filter-tabs">
-            <button 
-              className={filter === 'active' ? 'active' : ''} 
-              onClick={() => setFilter('active')}
-            >
-              Active
-            </button>
-            <button 
-              className={filter === 'completed' ? 'active' : ''} 
-              onClick={() => setFilter('completed')}
-            >
-              Completed
-            </button>
-            <button 
-              className={filter === 'all' ? 'active' : ''} 
-              onClick={() => setFilter('all')}
-            >
-              All
-            </button>
-          </div>
+    <div className="dashboard-container orders-dashboard">
+      {/* Header/Navbar */}
+      <header className="dashboard-header">
+        <div className="logo">
+          <FaMotorcycle />
+          <h1>FastFood Delivery Partner</h1>
         </div>
         
-        <div className="orders-list">
-          {filteredOrders.length === 0 ? (
-            <div className="no-orders">
-              <FaClipboardList size={48} />
-              <p>No {filter} orders found</p>
+        <nav className="dashboard-nav">
+          <Link to="/delivery/dashboard" className="nav-item">
+            <FaUser /> Home
+          </Link>
+          <Link to="/delivery/orders" className="nav-item active">
+            <FaClipboardList /> Orders
+          </Link>
+          <Link to="/delivery/earnings" className="nav-item">
+            <FaWallet /> Earnings
+          </Link>
+          <Link to="/delivery/account" className="nav-item">
+            <FaChartLine /> Account
+          </Link>
+        </nav>
+        
+        <div className="user-menu">
+          <span className="user-name">{partnerName}</span>
+          <button onClick={handleLogout} className="logout-button">
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="dashboard-content">
+        <section className="orders-section">
+          <h2>Order History</h2>
+          
+          <div className="orders-filter-bar">
+            <div className="tabs">
+              <button 
+                className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveTab('all')}
+              >
+                All Orders
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'completed' ? 'active' : ''}`}
+                onClick={() => setActiveTab('completed')}
+              >
+                Completed
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'cancelled' ? 'active' : ''}`}
+                onClick={() => setActiveTab('cancelled')}
+              >
+                Cancelled
+              </button>
+            </div>
+            
+            <div className="search-bar">
+              <input 
+                type="text"
+                placeholder="Search orders..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <FaSearch className="search-icon" />
+            </div>
+          </div>
+          
+          {loading ? (
+            <div className="loading-container">Loading order history...</div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="no-orders-message">
+              <p>No orders found matching your filters.</p>
             </div>
           ) : (
-            filteredOrders.map(order => (
-              <div key={order.id} className={`order-card ${order.status}`}>
-                <div className="order-header">
-                  <span className="order-id">Order #{order.id.slice(-6)}</span>
-                  <span className={`order-status ${order.status}`}>
-                    {order.status === 'active' ? 'Active' : 'Completed'}
-                  </span>
+            <div className="orders-table-container">
+              <table className="orders-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Restaurant</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Delivery Time</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.map((order) => (
+                    <tr key={order._id} className={`order-row ${order.status}`}>
+                      <td>#{order._id.slice(-6)}</td>
+                      <td>{order.restaurantName || 'Restaurant'}</td>
+                      <td>{order.customer?.name || 'Customer'}</td>
+                      <td>{formatDate(order.orderTime || order.timestamp || Date.now())}</td>
+                      <td>{getDeliveryTime(order)}</td>
+                      <td>
+                        <span className={`status-badge ${order.status}`}>
+                          {getOrderStatus(order.status)}
+                        </span>
+                      </td>
+                      <td className="amount">₹{getOrderAmount(order)}</td>
+                      <td>
+                        <button 
+                          className="view-btn" 
+                          onClick={() => setSelectedOrder(order)}
+                        >
+                          <FaEye /> View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+        
+        {/* Order Details Modal */}
+        {selectedOrder && (
+          <div className="order-details-modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Order Details - #{selectedOrder._id.slice(-6)}</h3>
+                <button 
+                  className="close-btn"
+                  onClick={() => setSelectedOrder(null)}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="order-info">
+                <div className="order-meta">
+                  <div className="info-group">
+                    <h4>Restaurant</h4>
+                    <p>{selectedOrder.restaurantName || 'Restaurant'}</p>
+                    <p>{selectedOrder.restaurantAddress || 'Address'}</p>
+                  </div>
+                  
+                  <div className="info-group">
+                    <h4>Customer</h4>
+                    <p>{selectedOrder.customer?.name || 'Customer'}</p>
+                    <p>{selectedOrder.address || 'Address'}</p>
+                  </div>
+                  
+                  <div className="info-group">
+                    <h4>Order Time</h4>
+                    <p>{formatDate(selectedOrder.orderTime || Date.now())}</p>
+                    <p>{formatTime(selectedOrder.orderTime || Date.now())}</p>
+                  </div>
+                  
+                  <div className="info-group">
+                    <h4>Status</h4>
+                    <p className={`status-badge ${selectedOrder.status}`}>
+                      {getOrderStatus(selectedOrder.status)}
+                    </p>
+                    <p>Delivery Fee: ₹{selectedOrder.deliveryFee || 40}</p>
+                  </div>
                 </div>
                 
-                <div className="order-details">
-                  <div className="restaurant">
-                    <h3>{order.restaurant.name}</h3>
-                    <p>{order.restaurant.address}</p>
-                  </div>
-                  
-                  <div className="delivery-details">
-                    <div className="customer-info">
-                      <FaUser />
-                      <span>{order.customer.name}</span>
-                    </div>
-                    <div className="address">
-                      <FaMapMarkerAlt />
-                      <span>{order.customer.address}</span>
-                    </div>
-                    <div className="time">
-                      <FaClock />
-                      <span>{formatOrderTime(order.createdAt)}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="order-summary">
-                    <div className="amount">
-                      <span className="label">Order Total:</span>
-                      <span className="value">₹{order.amount.toFixed(2)}</span>
-                    </div>
-                    <div className="earning">
-                      <span className="label">Your Earning:</span>
-                      <span className="value">₹{order.deliveryFee.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  
-                  {order.status === 'active' && (
-                    <div className="action-buttons">
-                      <button 
-                        className="btn deliver" 
-                        onClick={() => updateOrderStatus(order.id, 'completed')}
-                      >
-                        <FaCheck /> Mark as Delivered
-                      </button>
-                    </div>
-                  )}
+                <div className="items-section">
+                  <h4>Order Items</h4>
+                  <table className="items-table">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(selectedOrder.items || []).map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.name}</td>
+                          <td>{item.quantity}</td>
+                          <td>₹{item.price}</td>
+                          <td>₹{item.quantity * item.price}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colSpan="3">Subtotal</td>
+                        <td>₹{selectedOrder.subtotal || 0}</td>
+                      </tr>
+                      <tr>
+                        <td colSpan="3">Delivery Fee</td>
+                        <td>₹{selectedOrder.deliveryFee || 40}</td>
+                      </tr>
+                      <tr>
+                        <td colSpan="3">Total</td>
+                        <td>₹{selectedOrder.total || 0}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
+                
+                {selectedOrder.statusHistory && selectedOrder.statusHistory.length > 0 && (
+                  <div className="status-timeline">
+                    <h4>Delivery Timeline</h4>
+                    <ul className="timeline">
+                      {selectedOrder.statusHistory.map((status, index) => (
+                        <li key={index} className="timeline-item">
+                          <div className="timeline-marker"></div>
+                          <div className="timeline-content">
+                            <h5>{getOrderStatus(status.status)}</h5>
+                            <p>{status.time || formatTime(status.timestamp)}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-            ))
-          )}
-        </div>
-      </div>
+              
+              <div className="modal-footer">
+                <button 
+                  className="close-modal-btn"
+                  onClick={() => setSelectedOrder(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
