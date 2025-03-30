@@ -5,39 +5,40 @@
 }
 
 /* Main Layout */
+.delivery-account-container,
 .account-dashboard {
   min-height: 100vh;
   background-color: #ffffff;
   width: 100%;
 }
 
-.account-content {
+.delivery-account-container .account-content {
   padding: 25px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.account-header {
+.delivery-account-container .account-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
 }
 
-.account-header h1 {
+.delivery-account-container .account-header h1 {
   font-size: 1.8rem;
   color: #333;
   margin: 0;
 }
 
 /* Profile View Styles */
-.profile-view {
+.delivery-account-container .profile-view {
   display: flex;
   flex-direction: column;
   gap: 25px;
 }
 
-.profile-card {
+.delivery-account-container .profile-card {
   background: #fff;
   border-radius: 10px;
   padding: 25px;
@@ -45,7 +46,7 @@
   border: 1px solid #f0f0f0;
 }
 
-.profile-card h2 {
+.delivery-account-container .profile-card h2 {
   margin-top: 0;
   color: #333;
   font-size: 1.3rem;
@@ -55,21 +56,21 @@
   gap: 10px;
 }
 
-.profile-card h2 svg {
+.delivery-account-container .profile-card h2 svg {
   color: #FF5A5F;
 }
 
-.profile-grid {
+.delivery-account-container .profile-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 }
 
-.profile-field {
+.delivery-account-container .profile-field {
   margin-bottom: 15px;
 }
 
-.field-label {
+.delivery-account-container .field-label {
   font-weight: 500;
   color: #666;
   display: block;
@@ -77,21 +78,21 @@
   font-size: 0.9rem;
 }
 
-.field-value {
+.delivery-account-container .field-value {
   color: #333;
   font-size: 1rem;
   padding: 5px 0;
 }
 
 /* Profile Sections Layout */
-.profile-sections {
+.delivery-account-container .profile-sections {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 25px;
 }
 
 /* Vehicle Information Section */
-.vehicle-section {
+.delivery-account-container .vehicle-section {
   background: #fff;
   border-radius: 10px;
   padding: 25px;
@@ -99,7 +100,7 @@
   border: 1px solid #f0f0f0;
 }
 
-.vehicle-section h2 {
+.delivery-account-container .vehicle-section h2 {
   margin-top: 0;
   color: #333;
   font-size: 1.3rem;
@@ -109,15 +110,15 @@
   gap: 10px;
 }
 
-.vehicle-section h2 svg {
+.delivery-account-container .vehicle-section h2 svg {
   color: #FF5A5F;
 }
 
-.vehicle-info {
+.delivery-account-container .vehicle-info {
   margin-top: 15px;
 }
 
-.vehicle-detail {
+.delivery-account-container .vehicle-detail {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -126,28 +127,28 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
-.vehicle-detail svg {
+.delivery-account-container .vehicle-detail svg {
   color: #666;
   min-width: 20px;
 }
 
-.vehicle-detail-label {
+.delivery-account-container .vehicle-detail-label {
   font-weight: 500;
   min-width: 120px;
   color: #666;
 }
 
-.vehicle-detail-value {
+.delivery-account-container .vehicle-detail-value {
   color: #333;
 }
 
-.vehicle-actions {
+.delivery-account-container .vehicle-actions {
   margin-top: 25px;
   display: flex;
   justify-content: flex-end;
 }
 
-.update-vehicle-btn {
+.delivery-account-container .update-vehicle-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -161,12 +162,12 @@
   transition: all 0.3s ease;
 }
 
-.update-vehicle-btn:hover {
+.delivery-account-container .update-vehicle-btn:hover {
   background-color: #e9ecef;
 }
 
 /* Documents Section */
-.documents-section {
+.delivery-account-container .documents-section {
   background: #fff;
   border-radius: 10px;
   padding: 25px;
@@ -174,7 +175,7 @@
   border: 1px solid #f0f0f0;
 }
 
-.documents-section h2 {
+.delivery-account-container .documents-section h2 {
   margin-top: 0;
   color: #333;
   font-size: 1.3rem;
@@ -184,17 +185,17 @@
   gap: 10px;
 }
 
-.documents-section h2 svg {
+.delivery-account-container .documents-section h2 svg {
   color: #FF5A5F;
 }
 
-.documents-grid {
+.delivery-account-container .documents-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 }
 
-.document-card {
+.delivery-account-container .document-card {
   background: #fff;
   border-radius: 10px;
   padding: 20px;
@@ -205,7 +206,7 @@
   gap: 15px;
 }
 
-.document-icon {
+.delivery-account-container .document-icon {
   background-color: rgba(76, 175, 80, 0.1);
   color: #4CAF50;
   border-radius: 50%;
@@ -217,53 +218,53 @@
   font-size: 1.2rem;
 }
 
-.document-pending {
+.delivery-account-container .document-pending {
   background-color: rgba(255, 152, 0, 0.1);
   color: #FF9800;
 }
 
-.document-missing {
+.delivery-account-container .document-missing {
   background-color: rgba(244, 67, 54, 0.1);
   color: #F44336;
 }
 
-.document-details h3 {
+.delivery-account-container .document-details h3 {
   margin: 0 0 5px 0;
   font-size: 1rem;
 }
 
-.document-details p {
+.delivery-account-container .document-details p {
   margin: 0 0 5px 0;
   font-size: 0.9rem;
   color: #666;
 }
 
-.verification-status {
+.delivery-account-container .verification-status {
   display: flex;
   align-items: center;
   gap: 5px;
   font-size: 0.8rem;
 }
 
-.status-verified {
+.delivery-account-container .status-verified {
   color: #4CAF50;
 }
 
-.status-pending {
+.delivery-account-container .status-pending {
   color: #FF9800;
 }
 
-.status-missing {
+.delivery-account-container .status-missing {
   color: #F44336;
 }
 
-.document-update {
+.delivery-account-container .document-update {
   margin-top: 10px;
   display: flex;
   justify-content: flex-end;
 }
 
-.update-document-btn {
+.delivery-account-container .update-document-btn {
   background-color: transparent;
   color: #FF5A5F;
   border: none;
@@ -276,12 +277,12 @@
   gap: 5px;
 }
 
-.update-document-btn:hover {
+.delivery-account-container .update-document-btn:hover {
   background-color: rgba(255, 90, 95, 0.1);
 }
 
 /* Document Upload */
-.document-upload {
+.delivery-account-container .document-upload {
   border: 2px dashed #ddd;
   border-radius: 6px;
   padding: 25px;
@@ -291,46 +292,79 @@
   transition: all 0.3s ease;
 }
 
-.document-upload:hover {
+.delivery-account-container .document-upload:hover {
   border-color: #FF5A5F;
   background-color: rgba(255, 90, 95, 0.05);
 }
 
-.document-upload svg {
+.delivery-account-container .document-upload svg {
   font-size: 2.5rem;
   color: #FF5A5F;
   margin-bottom: 15px;
 }
 
-.document-upload h3 {
+.delivery-account-container .document-upload h3 {
   margin: 0 0 10px 0;
   color: #333;
 }
 
-.document-upload p {
+.delivery-account-container .document-upload p {
   margin: 5px 0;
   color: #666;
 }
 
-.upload-hint {
+.delivery-account-container .upload-hint {
   font-size: 0.8rem;
   color: #888;
   margin-top: 10px;
 }
 
+/* Document Preview */
+.delivery-account-container .document-preview {
+  margin-top: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.delivery-account-container .document-thumbnail {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+}
+
+.delivery-account-container .document-preview-info {
+  font-size: 0.9rem;
+}
+
+.delivery-account-container .document-preview-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.delivery-account-container .document-preview-size {
+  color: #666;
+  font-size: 0.8rem;
+}
+
 /* Edit Profile Form */
-.edit-profile-form {
+.delivery-account-container .edit-profile-form {
   background: #fff;
   border-radius: 10px;
   padding: 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.form-section {
+.delivery-account-container .form-section {
   margin-bottom: 30px;
 }
 
-.form-section h2 {
+.delivery-account-container .form-section h2 {
   margin-top: 0;
   color: #333;
   font-size: 1.3rem;
@@ -339,25 +373,25 @@
   padding-bottom: 10px;
 }
 
-.form-grid {
+.delivery-account-container .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 }
 
-.form-group {
+.delivery-account-container .form-group {
   margin-bottom: 20px;
 }
 
-.form-group label {
+.delivery-account-container .form-group label {
   display: block;
   font-size: 0.9rem;
   color: #666;
   margin-bottom: 8px;
 }
 
-.form-group input,
-.form-group select {
+.delivery-account-container .form-group input,
+.delivery-account-container .form-group select {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
@@ -367,14 +401,14 @@
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.delivery-account-container .form-group input:focus,
+.delivery-account-container .form-group select:focus {
   border-color: #FF5A5F;
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 90, 95, 0.2);
 }
 
-.form-group textarea {
+.delivery-account-container .form-group textarea {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
@@ -384,37 +418,37 @@
   resize: vertical;
 }
 
-.form-group textarea:focus {
+.delivery-account-container .form-group textarea:focus {
   border-color: #FF5A5F;
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 90, 95, 0.2);
 }
 
 /* Vehicle Form Fields */
-.vehicle-form {
+.delivery-account-container .vehicle-form {
   margin-top: 20px;
 }
 
-.vehicle-form-header {
+.delivery-account-container .vehicle-form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.vehicle-form-header h3 {
+.delivery-account-container .vehicle-form-header h3 {
   margin: 0;
   font-size: 1.1rem;
   color: #333;
 }
 
-.vehicle-type-selector {
+.delivery-account-container .vehicle-type-selector {
   display: flex;
   gap: 15px;
   margin-bottom: 25px;
 }
 
-.vehicle-type-option {
+.delivery-account-container .vehicle-type-option {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -427,27 +461,27 @@
   flex: 1;
 }
 
-.vehicle-type-option.active {
+.delivery-account-container .vehicle-type-option.active {
   border-color: #FF5A5F;
   background-color: rgba(255, 90, 95, 0.05);
 }
 
-.vehicle-type-option svg {
+.delivery-account-container .vehicle-type-option svg {
   font-size: 2rem;
   color: #666;
 }
 
-.vehicle-type-option.active svg {
+.delivery-account-container .vehicle-type-option.active svg {
   color: #FF5A5F;
 }
 
-.vehicle-type-option p {
+.delivery-account-container .vehicle-type-option p {
   margin: 0;
   font-weight: 500;
 }
 
 /* Form Actions */
-.form-actions {
+.delivery-account-container .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 15px;
@@ -456,7 +490,7 @@
   border-top: 1px solid #eee;
 }
 
-.form-actions button {
+.delivery-account-container .form-actions button {
   padding: 12px 24px;
   border-radius: 6px;
   font-size: 1rem;
@@ -465,35 +499,35 @@
   transition: all 0.3s ease;
 }
 
-.cancel-btn {
+.delivery-account-container .cancel-btn {
   background-color: #f8f9fa;
   color: #333;
   border: 1px solid #ddd;
 }
 
-.cancel-btn:hover {
+.delivery-account-container .cancel-btn:hover {
   background-color: #e9ecef;
 }
 
-.save-btn {
+.delivery-account-container .save-btn {
   background-color: #FF5A5F;
   color: white;
   border: none;
 }
 
-.save-btn:hover {
+.delivery-account-container .save-btn:hover {
   background-color: #ff4146;
 }
 
 /* Account Actions */
-.account-actions {
+.delivery-account-container .account-actions {
   display: flex;
   justify-content: flex-end;
   gap: 15px;
   margin-top: 20px;
 }
 
-.edit-profile-btn {
+.delivery-account-container .edit-profile-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -507,35 +541,35 @@
   transition: all 0.3s ease;
 }
 
-.edit-profile-btn:hover {
+.delivery-account-container .edit-profile-btn:hover {
   background-color: #e9ecef;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .account-header {
+  .delivery-account-container .account-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
   
-  .profile-sections {
+  .delivery-account-container .profile-sections {
     grid-template-columns: 1fr;
   }
   
-  .form-grid {
+  .delivery-account-container .form-grid {
     grid-template-columns: 1fr;
   }
   
-  .form-actions {
+  .delivery-account-container .form-actions {
     flex-direction: column-reverse;
   }
   
-  .form-actions button {
+  .delivery-account-container .form-actions button {
     width: 100%;
   }
   
-  .vehicle-type-selector {
+  .delivery-account-container .vehicle-type-selector {
     flex-direction: column;
   }
 }

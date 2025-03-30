@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaMotorcycle } from 'react-icons/fa';
 import axios from "axios";
 import "../styles/Login.css";
+import "../styles/LoginFix.css"; // Add this import at the top
 
 // Remove the mock loginUser function and replace with the real API call
 const loginUser = async (email, password) => {
