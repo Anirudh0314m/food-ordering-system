@@ -1,79 +1,81 @@
-import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { FaMotorcycle, FaHome, FaClipboardList, FaWallet, FaUser, 
-         FaMapMarkerAlt, FaSignOutAlt } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { FaHome, FaList, FaMotorcycle, FaMoneyBillWave, FaUser, FaSignOutAlt, FaBell } from 'react-icons/fa';
 import '../styles/DeliveryNavbar.css';
 
-const DeliveryNavbar = ({ isOnline, toggleOnlineStatus, partnerName, currentLocation, handleLogout }) => {
-  const location = useLocation();
+const DeliveryNavbar = () => {
+  const navigate = useNavigate();
+  const [partnerName, setPartnerName] = useState('Delivery Partner');
+  
+  useEffect(() => {
+    // Load partner name from localStorage
+    const name = localStorage.getItem('partnerName');
+    if (name) {
+      setPartnerName(name);
+    }
+  }, []);
+  
+  // Handle logout
+  const handleLogout = () => {
+    // Clear auth data
+    localStorage.removeItem('deliveryAuthToken');
+    localStorage.removeItem('partnerName');
+    
+    // Navigate to login
+    navigate('/delivery/login');
+  };
 
   return (
-    <nav className="delivery-navbar">
-      <div className="navbar-brand">
-        <FaMotorcycle size={24} />
-        <h1>FastFood Delivery</h1>
-      </div>
-      
-      <div className="status-toggle">
-        <label className="switch">
-          <input 
-            type="checkbox" 
-            checked={isOnline} 
-            onChange={toggleOnlineStatus}
-          />
-          <span className="slider round"></span>
-        </label>
-        <span className={`status-text ${isOnline ? 'online' : 'offline'}`}>
-          {isOnline ? 'Online' : 'Offline'}
-        </span>
-      </div>
-      
-      <div className="nav-links">
-        <NavLink 
-          to="/delivery/dashboard" 
-          className={({ isActive }) => isActive ? 'active' : ''}
-        >
-          <FaHome /> Home
-        </NavLink>
-        <NavLink 
-          to="/delivery/orders" 
-          className={({ isActive }) => isActive ? 'active' : ''}
-        >
-          <FaClipboardList /> Orders
-        </NavLink>
-        <NavLink 
-          to="/delivery/earnings" 
-          className={({ isActive }) => isActive ? 'active' : ''}
-        >
-          <FaWallet /> Earnings
-        </NavLink>
-        <NavLink 
-          to="/delivery/account" 
-          className={({ isActive }) => isActive ? 'active' : ''}
-        >
-          <FaUser /> Account
-        </NavLink>
-      </div>
-      
-      {currentLocation && (
-        <div className="current-location">
-          <FaMapMarkerAlt />
-          <span>{currentLocation}</span>
+    <header className="delivery-navbar">
+      <div className="navbar-container">
+        <div className="logo">
+          <FaMotorcycle />
+          <h1>Delivery Dashboard</h1>
         </div>
-      )}
-      
-      <div className="user-info">
-        <div className="partner-avatar">
-          <FaUser />
-        </div>
-        <div className="user-details">
-          <span className="partner-name">{partnerName}</span>
-          <button onClick={handleLogout} className="logout-btn">
-            <FaSignOutAlt /> Logout
+        
+        <nav className="nav-links">
+          <NavLink to="/delivery/dashboard" className={({ isActive }) => 
+            isActive ? "nav-item active" : "nav-item"}>
+            <FaHome />
+            <span>Home</span>
+          </NavLink>
+          
+          <NavLink to="/delivery/orders" className={({ isActive }) => 
+            isActive ? "nav-item active" : "nav-item"}>
+            <FaList />
+            <span>Orders</span>
+          </NavLink>
+          
+          <NavLink to="/delivery/earnings" className={({ isActive }) => 
+            isActive ? "nav-item active" : "nav-item"}>
+            <FaMoneyBillWave />
+            <span>Earnings</span>
+          </NavLink>
+          
+          <NavLink to="/delivery/account" className={({ isActive }) => 
+            isActive ? "nav-item active" : "nav-item"}>
+            <FaUser />
+            <span>Account</span>
+          </NavLink>
+        </nav>
+        
+        <div className="user-actions">
+          <button className="notification-btn">
+            <FaBell />
+            <span className="notification-badge">2</span>
+          </button>
+          
+          <div className="user-name">
+            {partnerName}
+          </div>
+          
+          <button className="logout-button" onClick={handleLogout}>
+            <FaSignOutAlt />
+            <span>Logout</span>
           </button>
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
 
