@@ -9,9 +9,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 25px;
+  padding: 8px 15px;
   background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -20,35 +20,31 @@
 .dashboard-header .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .dashboard-header .logo svg {
   color: #FF5A5F;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .dashboard-header .logo h1 {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
   margin: 0;
 }
 
 .dashboard-nav {
   display: flex;
-  gap: 10px;
+  gap: 5px;
 }
 
 .dashboard-nav .nav-item {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 10px 15px;
-  color: #555;
-  text-decoration: none;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  gap: 4px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
 }
 
 .dashboard-nav .nav-item:hover {
@@ -64,24 +60,25 @@
 .user-menu {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .user-name {
   font-weight: 500;
-  color: #333;
+  font-size: 0.9rem;
 }
 
 .logout-button {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 8px 15px;
+  padding: 5px 10px;
   background-color: transparent;
   color: #555;
   border: 1px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 0.85rem;
   transition: all 0.2s;
 }
 
@@ -98,7 +95,7 @@
 }
 
 .delivery-account-container .account-content {
-  padding: 25px;
+  padding: 15px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -107,13 +104,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
 }
 
 .delivery-account-container .header-left {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .delivery-account-container .back-button {
@@ -123,9 +120,9 @@
   align-items: center;
   gap: 5px;
   color: #555;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 5px 8px;
   border-radius: 6px;
   transition: all 0.2s;
 }
@@ -135,24 +132,46 @@
 }
 
 .delivery-account-container .account-header h1 {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   color: #333;
   margin: 0;
+}
+
+/* Tab Navigation for Profile Sections */
+.delivery-account-container .profile-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 15px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.delivery-account-container .profile-tab {
+  padding: 8px 15px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  font-weight: 500;
+  color: #666;
+}
+
+.delivery-account-container .profile-tab.active {
+  color: #FF5A5F;
+  border-bottom-color: #FF5A5F;
 }
 
 /* Profile View Styles */
 .delivery-account-container .profile-view {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 15px;
   animation: fadeIn 0.5s ease-in-out;
 }
 
 .delivery-account-container .profile-card {
   background: #fff;
-  border-radius: 10px;
-  padding: 25px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid #f0f0f0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -165,39 +184,46 @@
 .delivery-account-container .profile-card h2 {
   margin-top: 0;
   color: #333;
-  font-size: 1.3rem;
-  margin-bottom: 20px;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .delivery-account-container .profile-card h2 svg {
   color: #FF5A5F;
+  font-size: 1rem;
+}
+
+.delivery-account-container .section-note {
+  font-size: 0.7rem;
+  color: #777;
+  margin-left: 8px;
 }
 
 .delivery-account-container .profile-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .delivery-account-container .profile-field {
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .delivery-account-container .field-label {
   font-weight: 500;
   color: #666;
   display: block;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
+  margin-bottom: 3px;
+  font-size: 0.8rem;
 }
 
 .delivery-account-container .field-value {
   color: #333;
-  font-size: 1rem;
-  padding: 5px 0;
+  font-size: 0.95rem;
+  padding: 3px 0;
   display: inline-block;
   border-bottom: 2px solid transparent;
   transition: border-color 0.3s ease;
@@ -238,31 +264,42 @@
 }
 
 .delivery-account-container .vehicle-info {
-  margin-top: 15px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 .delivery-account-container .vehicle-detail {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 8px 10px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.delivery-account-container .vehicle-detail:hover {
+  background-color: #f0f0f0;
 }
 
 .delivery-account-container .vehicle-detail svg {
-  color: #666;
-  min-width: 20px;
+  color: #FF5A5F;
+  font-size: 1rem;
+  margin-right: 10px;
 }
 
 .delivery-account-container .vehicle-detail-label {
-  font-weight: 500;
-  min-width: 120px;
   color: #666;
+  font-weight: 500;
+  font-size: 0.8rem;
+  margin-right: 8px;
 }
 
 .delivery-account-container .vehicle-detail-value {
   color: #333;
+  font-size: 0.9rem;
+  flex: 1;
 }
 
 .delivery-account-container .vehicle-actions {
@@ -314,58 +351,67 @@
 
 .delivery-account-container .documents-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
 }
 
 .delivery-account-container .document-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f0f0f0;
   display: flex;
-  align-items: center;
-  gap: 15px;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.delivery-account-container .document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .delivery-account-container .document-icon {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: #4CAF50;
-  border-radius: 50%;
   width: 40px;
-  height: 40px;
+  background-color: #4CAF50;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
 }
 
-.delivery-account-container .document-pending {
-  background-color: rgba(255, 152, 0, 0.1);
-  color: #FF9800;
+.delivery-account-container .document-icon.document-pending {
+  background-color: #FF9800;
 }
 
-.delivery-account-container .document-missing {
-  background-color: rgba(244, 67, 54, 0.1);
-  color: #F44336;
+.delivery-account-container .document-icon.document-missing {
+  background-color: #f44336;
+}
+
+.delivery-account-container .document-icon svg {
+  font-size: 1.5rem;
+}
+
+.delivery-account-container .document-details {
+  padding: 10px;
+  flex: 1;
 }
 
 .delivery-account-container .document-details h3 {
   margin: 0 0 5px 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .delivery-account-container .document-details p {
-  margin: 0 0 5px 0;
-  font-size: 0.9rem;
+  margin: 0;
   color: #666;
+  font-size: 0.75rem;
 }
 
 .delivery-account-container .verification-status {
   display: flex;
   align-items: center;
   gap: 5px;
+  padding: 3px 0 6px;
   font-size: 0.8rem;
 }
 
@@ -378,7 +424,7 @@
 }
 
 .delivery-account-container .status-missing {
-  color: #F44336;
+  color: #f44336;
 }
 
 .delivery-account-container .document-update {
@@ -406,18 +452,86 @@
 
 /* Document Upload */
 .delivery-account-container .document-upload {
-  border: 2px dashed #ddd;
-  border-radius: 6px;
-  padding: 25px;
-  text-align: center;
-  margin: 20px 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.delivery-account-container .document-upload:hover {
-  border-color: #FF5A5F;
-  background-color: rgba(255, 90, 95, 0.05);
+.delivery-account-container .file-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.delivery-account-container .file-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.delivery-account-container .file-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+
+.delivery-account-container .file-label:hover {
+  background-color: #f0f0f0;
+}
+
+.delivery-account-container .upload-btn, .replace-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.8rem;
+}
+
+.delivery-account-container .upload-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.delivery-account-container .upload-btn:hover {
+  background-color: #2980b9;
+}
+
+.delivery-account-container .upload-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.delivery-account-container .replace-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.delivery-account-container .replace-btn:hover {
+  background-color: #e1e1e1;
+}
+
+.delivery-account-container .document-actions {
+  margin-top: 10px;
 }
 
 .delivery-account-container .document-upload svg {
@@ -566,42 +680,50 @@
   color: #333;
 }
 
+/* Vehicle Type Selector - Horizontal compact version */
 .delivery-account-container .vehicle-type-selector {
   display: flex;
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .delivery-account-container .vehicle-type-option {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
-  padding: 15px;
-  border: 2px solid #eee;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
   flex: 1;
 }
 
 .delivery-account-container .vehicle-type-option.active {
   border-color: #FF5A5F;
-  background-color: rgba(255, 90, 95, 0.05);
+  background-color: rgba(255, 90, 95, 0.1);
+}
+
+.delivery-account-container .vehicle-type-option.active svg,
+.delivery-account-container .vehicle-type-option.active p {
+  color: #FF5A5F;
 }
 
 .delivery-account-container .vehicle-type-option svg {
-  font-size: 2rem;
-  color: #666;
-}
-
-.delivery-account-container .vehicle-type-option.active svg {
-  color: #FF5A5F;
+  font-size: 1.1rem;
+  color: #555;
+  margin-right: 5px;
 }
 
 .delivery-account-container .vehicle-type-option p {
   margin: 0;
-  font-weight: 500;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.delivery-account-container .vehicle-type-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Form Actions */
@@ -677,6 +799,102 @@
   vertical-align: -0.125em;
 }
 
+/* General styling for editable fields */
+.editable-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.editable-field input, 
+.editable-field textarea {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #FF5A5F;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  background-color: white;
+}
+
+.editable-field textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.edit-btn, 
+.save-btn, 
+.cancel-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  font-size: 0.7rem;
+}
+
+.edit-btn {
+  color: #555;
+  opacity: 0;
+  margin-left: 8px;
+}
+
+.profile-field:hover .edit-btn,
+.vehicle-detail:hover .edit-btn {
+  opacity: 1;
+}
+
+.save-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #45a049;
+}
+
+.cancel-btn:hover {
+  background-color: #d32f2f;
+}
+
+.edit-btn:hover {
+  background-color: #f1f1f1;
+}
+
+/* Section notes */
+.section-note {
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: #777;
+  margin-left: 10px;
+}
+
+/* Registration badge styling */
+.registration-badge {
+  background-color: #3498db;
+  color: white;
+  font-size: 0.65rem;
+  padding: 1px 4px;
+  border-radius: 8px;
+  margin-left: 6px;
+  font-weight: normal;
+}
+
 /* Add some animations */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -684,11 +902,17 @@
 }
 
 /* Responsive design */
+@media (max-width: 992px) {
+  .delivery-account-container .profile-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
-    padding: 10px;
-    gap: 10px;
+    padding: 8px;
+    gap: 8px;
   }
   
   .dashboard-nav {
@@ -731,6 +955,24 @@
   }
   
   .delivery-account-container .vehicle-type-selector {
+    flex-wrap: wrap;
+  }
+  
+  .delivery-account-container .vehicle-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .editable-field {
     flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .editable-field input, 
+  .editable-field textarea {
+    width: 100%;
+  }
+  
+  .edit-buttons {
+    align-self: flex-end;
   }
 }
