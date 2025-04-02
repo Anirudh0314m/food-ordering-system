@@ -4,6 +4,91 @@
   width: 100%;
 }
 
+/* Dashboard Header/Navbar */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.dashboard-header .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-header .logo svg {
+  color: #FF5A5F;
+  font-size: 1.8rem;
+}
+
+.dashboard-header .logo h1 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.dashboard-nav {
+  display: flex;
+  gap: 10px;
+}
+
+.dashboard-nav .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 15px;
+  color: #555;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.dashboard-nav .nav-item:hover {
+  background-color: #f5f5f5;
+}
+
+.dashboard-nav .nav-item.active {
+  color: #FF5A5F;
+  background-color: rgba(255, 90, 95, 0.1);
+  font-weight: 500;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 15px;
+  background-color: transparent;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #f5f5f5;
+}
+
 /* Main Layout */
 .delivery-account-container,
 .account-dashboard {
@@ -60,6 +145,7 @@
   display: flex;
   flex-direction: column;
   gap: 25px;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .delivery-account-container .profile-card {
@@ -68,6 +154,12 @@
   padding: 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border: 1px solid #f0f0f0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.delivery-account-container .profile-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .delivery-account-container .profile-card h2 {
@@ -106,6 +198,13 @@
   color: #333;
   font-size: 1rem;
   padding: 5px 0;
+  display: inline-block;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.delivery-account-container .profile-field:hover .field-value {
+  border-bottom-color: #FF5A5F;
 }
 
 /* Profile Sections Layout */
@@ -382,6 +481,7 @@
   border-radius: 10px;
   padding: 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .delivery-account-container .form-section {
@@ -569,8 +669,45 @@
   background-color: #e9ecef;
 }
 
+/* Add this class for FaClock icon which was missing */
+.fa-clock {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+/* Add some animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .dashboard-nav {
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+  
+  .dashboard-nav .nav-item {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+  
+  .user-menu {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
   .delivery-account-container .account-header {
     flex-direction: column;
     align-items: flex-start;

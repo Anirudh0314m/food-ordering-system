@@ -1,484 +1,529 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaUser, FaMotorcycle, FaCar, FaBicycle, FaIdCard, FaFileAlt, FaUpload, FaCheckCircle, FaTimesCircle, FaRegClock, FaEdit, FaArrowLeft } from 'react-icons/fa';
-import { GiSteeringWheel, GiCalendar } from 'react-icons/gi';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { 
+  FaMotorcycle, FaWallet, FaClipboardList, FaChartLine, 
+  FaSignOutAlt, FaUser, FaIdCard, FaFileAlt, FaCamera,
+  FaArrowLeft, FaEdit, FaCheck, FaCar, FaBicycle, FaUpload,
+  FaCalendarAlt,FaClock
+} from 'react-icons/fa';
 import '../styles/DeliveryAccount.css';
 
-const DeliveryAccount = () => {
-  // States for profile information
-  const [partnerInfo, setPartnerInfo] = useState({
-    id: '',
+const DeliveryAccount = ({ handleLogout }) => {
+  const navigate = useNavigate();
+  const [partnerName, setPartnerName] = useState('');
+  const [partnerId, setPartnerId] = useState('');
+  const [partnerData, setPartnerData] = useState({
     name: '',
-    phone: '',
     email: '',
+    phone: '',
     address: '',
-    joinedDate: ''
-  });
-
-  // Vehicle information state
-  const [vehicleInfo, setVehicleInfo] = useState({
-    type: 'motorcycle', // motorcycle, car, bicycle
-    model: '',
-    year: '',
-    color: '',
-    licensePlate: ''
-  });
-
-  // Document state
-  const [documents, setDocuments] = useState([
-    { 
-      id: 'driver_license', 
-      name: 'Driver\'s License', 
-      status: 'pending',
-      uploadDate: '03/20/2025', 
-      expiryDate: '03/20/2030',
-      file: null
+    emergencyContact: '',
+    dateOfBirth: '',
+    joiningDate: '',
+    rating: 4.8,
+    totalDeliveries: 0,
+    vehicle: {
+      type: 'motorcycle',
+      make: 'Honda',
+      model: 'Activa',
+      year: '2020',
+      licensePlate: 'KA-01-AB-1234',
+      color: 'Black'
     },
-    { 
-      id: 'id_proof', 
-      name: 'Identity Proof', 
-      status: 'verified',
-      uploadDate: '03/15/2025', 
-      expiryDate: 'N/A',
-      file: null
-    },
-    { 
-      id: 'vehicle_registration', 
-      name: 'Vehicle Registration', 
-      status: 'missing',
-      uploadDate: '', 
-      expiryDate: '',
-      file: null
-    }
-  ]);
-
-  // UI state
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [isEditingVehicle, setIsEditingVehicle] = useState(false);
-  const [activeDocumentUpload, setActiveDocumentUpload] = useState(null);
-  
-  // Refs
-  const fileInputRef = useRef(null);
-
-  // Effects
-  useEffect(() => {
-    // Load partner information from localStorage
-    const partnerId = localStorage.getItem('partnerId');
-    const name = localStorage.getItem('partnerName') || 'Delivery Partner';
-    
-    // Example of loading data - in a real app, this would come from an API
-    setPartnerInfo({
-      id: partnerId || 'DP' + Date.now().toString().slice(-8),
-      name: name,
-      phone: '555-123-4567',
-      email: 'partner@example.com',
-      address: '123 Main St, Anytown',
-      joinedDate: 'March 15, 2025'
-    });
-    
-    // Load saved vehicle info if available
-    const savedVehicleInfo = localStorage.getItem('partnerVehicleInfo');
-    if (savedVehicleInfo) {
-      setVehicleInfo(JSON.parse(savedVehicleInfo));
-    }
-    
-    // Load saved documents if available
-    const savedDocuments = localStorage.getItem('partnerDocuments');
-    if (savedDocuments) {
-      setDocuments(JSON.parse(savedDocuments));
-    }
-  }, []);
-
-  // Handle profile update
-  const handleProfileUpdate = (e) => {
-    e.preventDefault();
-    
-    // Save to localStorage (in real app, send to API)
-    localStorage.setItem('partnerName', partnerInfo.name);
-    
-    // Exit edit mode
-    setIsEditingProfile(false);
-  };
-
-  // Handle vehicle update
-  const handleVehicleUpdate = (e) => {
-    e.preventDefault();
-    
-    // Save to localStorage (in real app, send to API)
-    localStorage.setItem('partnerVehicleInfo', JSON.stringify(vehicleInfo));
-    
-    // Exit edit mode
-    setIsEditingVehicle(false);
-  };
-
-  // Handle document upload
-  const handleDocumentUpload = (documentId) => {
-    setActiveDocumentUpload(documentId);
-    fileInputRef.current.click();
-  };
-
-  // Handle file selection
-  const handleFileChange = (e) => {
-    if (!e.target.files[0] || !activeDocumentUpload) return;
-    
-    const file = e.target.files[0];
-    
-    // Update the document with the new file
-    const updatedDocuments = documents.map(doc => {
-      if (doc.id === activeDocumentUpload) {
-        // In a real app, you'd upload this file to a server
-        // and get back a URL/confirmation
-        return {
-          ...doc,
-          file: file,
-          uploadDate: new Date().toLocaleDateString(),
-          status: 'pending'
-        };
+    documents: [
+      { 
+        id: 1, 
+        type: 'id_proof', 
+        name: 'ID Card', 
+        status: 'verified', 
+        expiryDate: '2025-12-31',
+        uploadedDate: '2023-05-15' 
+      },
+      { 
+        id: 2, 
+        type: 'license', 
+        name: 'Driving License', 
+        status: 'verified', 
+        expiryDate: '2026-08-15',
+        uploadedDate: '2023-05-15' 
+      },
+      { 
+        id: 3, 
+        type: 'vehicle_rc', 
+        name: 'Vehicle Registration', 
+        status: 'pending', 
+        expiryDate: '2030-01-01',
+        uploadedDate: '2023-05-16' 
+      },
+      { 
+        id: 4, 
+        type: 'insurance', 
+        name: 'Vehicle Insurance', 
+        status: 'missing', 
+        expiryDate: '',
+        uploadedDate: '' 
       }
-      return doc;
+    ]
+  });
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({...partnerData});
+  
+  useEffect(() => {
+    // Check authentication
+    const token = localStorage.getItem('authToken');
+    const role = localStorage.getItem('userRole');
+    
+    if (!token || role !== 'delivery_partner') {
+      navigate('/delivery/login');
+      return;
+    }
+    
+    // Load partner information
+    const name = localStorage.getItem('partnerName') || 'Delivery Partner';
+    setPartnerName(name);
+    
+    // Get partner ID
+    const id = localStorage.getItem('partnerId') || '12345';
+    setPartnerId(id);
+    
+    // In a real app, you would fetch the partner data from your API
+    // For now, using the mock data from state
+    // Example: fetchPartnerData(id);
+    
+    // Update formData with the loaded partnerData
+    setFormData({...partnerData});
+  }, [navigate]);
+  
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith('vehicle.')) {
+      const vehicleField = name.split('.')[1];
+      setFormData({
+        ...formData,
+        vehicle: {
+          ...formData.vehicle,
+          [vehicleField]: value
+        }
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+  };
+  
+  const handleVehicleTypeChange = (type) => {
+    setFormData({
+      ...formData,
+      vehicle: {
+        ...formData.vehicle,
+        type
+      }
     });
+  };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // In a real app, you would send this data to your API
+    // Example: updatePartnerData(partnerId, formData);
     
-    setDocuments(updatedDocuments);
-    localStorage.setItem('partnerDocuments', JSON.stringify(updatedDocuments));
-    
-    // Reset active document
-    setActiveDocumentUpload(null);
+    // Update the partner data in state
+    setPartnerData(formData);
+    setIsEditing(false);
   };
-
-  // Get status icon based on document status
-  const getStatusIcon = (status) => {
-    switch(status) {
-      case 'verified':
-        return <FaCheckCircle color="#4CAF50" />;
-      case 'pending':
-        return <FaRegClock color="#FF9800" />;
-      case 'missing':
-      default:
-        return <FaTimesCircle color="#F44336" />;
-    }
-  };
-
-  // Get vehicle icon based on type
-  const getVehicleIcon = (type) => {
-    switch(type) {
-      case 'car':
-        return <FaCar />;
-      case 'bicycle':
-        return <FaBicycle />;
-      case 'motorcycle':
-      default:
-        return <FaMotorcycle />;
-    }
-  };
-
+  
   return (
     <div className="delivery-account-container">
-      <div className="account-dashboard">
-        <div className="account-content">
-          <div className="account-header">
+      {/* Header/Navbar */}
+      <header className="dashboard-header">
+        <div className="logo">
+          <FaMotorcycle />
+          <h1>FastFood Delivery Partner</h1>
+        </div>
+        
+        <nav className="dashboard-nav">
+          <Link to="/delivery/dashboard" className="nav-item">
+            <FaUser /> Home
+          </Link>
+          <Link to="/delivery/orders" className="nav-item">
+            <FaClipboardList /> Orders
+          </Link>
+          <Link to="/delivery/earnings" className="nav-item">
+            <FaWallet /> Earnings
+          </Link>
+          <Link to="/delivery/account" className="nav-item active">
+            <FaChartLine /> Account
+          </Link>
+        </nav>
+        
+        <div className="user-menu">
+          <span className="user-name">{partnerName}</span>
+          <button onClick={handleLogout} className="logout-button">
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="account-content">
+        <div className="account-header">
+          <div className="header-left">
+            <button 
+              className="back-button"
+              onClick={() => navigate('/delivery/dashboard')}
+            >
+              <FaArrowLeft /> Back to Dashboard
+            </button>
             <h1>My Account</h1>
-            {!isEditingProfile && !isEditingVehicle && (
-              <div className="account-actions">
-                <button className="edit-profile-btn" onClick={() => setIsEditingProfile(true)}>
-                  <FaEdit /> Edit Profile
-                </button>
-              </div>
-            )}
           </div>
-
-          {isEditingProfile ? (
-            <div className="edit-profile-form">
-              <form onSubmit={handleProfileUpdate}>
-                <div className="form-section">
-                  <h2>Personal Information</h2>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label htmlFor="name">Full Name</label>
-                      <input 
-                        id="name" 
-                        type="text" 
-                        value={partnerInfo.name} 
-                        onChange={(e) => setPartnerInfo({...partnerInfo, name: e.target.value})}
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="phone">Phone</label>
-                      <input 
-                        id="phone" 
-                        type="tel" 
-                        value={partnerInfo.phone} 
-                        onChange={(e) => setPartnerInfo({...partnerInfo, phone: e.target.value})}
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="email">Email</label>
-                      <input 
-                        id="email" 
-                        type="email" 
-                        value={partnerInfo.email} 
-                        onChange={(e) => setPartnerInfo({...partnerInfo, email: e.target.value})}
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="address">Address</label>
-                      <input 
-                        id="address" 
-                        type="text" 
-                        value={partnerInfo.address} 
-                        onChange={(e) => setPartnerInfo({...partnerInfo, address: e.target.value})}
-                        required 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button type="button" className="cancel-btn" onClick={() => setIsEditingProfile(false)}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="save-btn">
-                    Save Changes
-                  </button>
-                </div>
-              </form>
+          
+          {!isEditing && (
+            <div className="account-actions">
+              <button 
+                className="edit-profile-btn"
+                onClick={() => setIsEditing(true)}
+              >
+                <FaEdit /> Edit Profile
+              </button>
             </div>
-          ) : isEditingVehicle ? (
-            <div className="edit-profile-form">
-              <form onSubmit={handleVehicleUpdate}>
-                <div className="form-section">
-                  <div className="vehicle-form-header">
-                    <h2>Vehicle Information</h2>
-                    <button 
-                      type="button" 
-                      className="back-btn"
-                      onClick={() => setIsEditingVehicle(false)}
-                    >
-                      <FaArrowLeft /> Back
-                    </button>
-                  </div>
-                  
-                  <div className="vehicle-type-selector">
-                    <div 
-                      className={`vehicle-type-option ${vehicleInfo.type === 'motorcycle' ? 'active' : ''}`}
-                      onClick={() => setVehicleInfo({...vehicleInfo, type: 'motorcycle'})}
-                    >
-                      <FaMotorcycle />
-                      <p>Motorcycle</p>
-                    </div>
-                    <div 
-                      className={`vehicle-type-option ${vehicleInfo.type === 'car' ? 'active' : ''}`}
-                      onClick={() => setVehicleInfo({...vehicleInfo, type: 'car'})}
-                    >
-                      <FaCar />
-                      <p>Car</p>
-                    </div>
-                    <div 
-                      className={`vehicle-type-option ${vehicleInfo.type === 'bicycle' ? 'active' : ''}`}
-                      onClick={() => setVehicleInfo({...vehicleInfo, type: 'bicycle'})}
-                    >
-                      <FaBicycle />
-                      <p>Bicycle</p>
-                    </div>
-                  </div>
-                  
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label htmlFor="model">Vehicle Model</label>
-                      <input 
-                        id="model" 
-                        type="text" 
-                        value={vehicleInfo.model} 
-                        onChange={(e) => setVehicleInfo({...vehicleInfo, model: e.target.value})}
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="year">Year</label>
-                      <input 
-                        id="year" 
-                        type="text" 
-                        value={vehicleInfo.year} 
-                        onChange={(e) => setVehicleInfo({...vehicleInfo, year: e.target.value})}
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="color">Color</label>
-                      <input 
-                        id="color" 
-                        type="text" 
-                        value={vehicleInfo.color} 
-                        onChange={(e) => setVehicleInfo({...vehicleInfo, color: e.target.value})}
-                        required 
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="licensePlate">License Plate</label>
-                      <input 
-                        id="licensePlate" 
-                        type="text" 
-                        value={vehicleInfo.licensePlate} 
-                        onChange={(e) => setVehicleInfo({...vehicleInfo, licensePlate: e.target.value})}
-                        required 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button type="button" className="cancel-btn" onClick={() => setIsEditingVehicle(false)}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="save-btn">
-                    Save Vehicle Information
-                  </button>
-                </div>
-              </form>
-            </div>
-          ) : (
-            <div className="profile-view">
-              <div className="profile-sections">
-                {/* Personal Information Section */}
-                <div className="profile-card">
-                  <h2><FaUser /> Personal Information</h2>
-                  <div className="profile-grid">
-                    <div className="profile-field">
-                      <span className="field-label">Name</span>
-                      <div className="field-value">{partnerInfo.name}</div>
-                    </div>
-                    <div className="profile-field">
-                      <span className="field-label">Phone</span>
-                      <div className="field-value">{partnerInfo.phone}</div>
-                    </div>
-                    <div className="profile-field">
-                      <span className="field-label">Email</span>
-                      <div className="field-value">{partnerInfo.email}</div>
-                    </div>
-                    <div className="profile-field">
-                      <span className="field-label">Address</span>
-                      <div className="field-value">{partnerInfo.address}</div>
-                    </div>
-                    <div className="profile-field">
-                      <span className="field-label">Partner ID</span>
-                      <div className="field-value">{partnerInfo.id}</div>
-                    </div>
-                    <div className="profile-field">
-                      <span className="field-label">Joined Date</span>
-                      <div className="field-value">{partnerInfo.joinedDate}</div>
-                    </div>
-                  </div>
+          )}
+        </div>
+        
+        {isEditing ? (
+          <form className="edit-profile-form" onSubmit={handleSubmit}>
+            <div className="form-section">
+              <h2>Personal Information</h2>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your full name"
+                    required
+                  />
                 </div>
                 
-                {/* Vehicle Information Section */}
-                <div className="vehicle-section">
-                  <h2>{getVehicleIcon(vehicleInfo.type)} Vehicle Information</h2>
-                  
-                  <div className="vehicle-info">
-                    <div className="vehicle-detail">
-                      <span className="vehicle-detail-label">Vehicle Type</span>
-                      <span className="vehicle-detail-value">
-                        {vehicleInfo.type.charAt(0).toUpperCase() + vehicleInfo.type.slice(1)}
-                      </span>
-                    </div>
-                    
-                    <div className="vehicle-detail">
-                      <span className="vehicle-detail-label">Model</span>
-                      <span className="vehicle-detail-value">{vehicleInfo.model || 'Not specified'}</span>
-                    </div>
-                    
-                    <div className="vehicle-detail">
-                      <GiCalendar />
-                      <span className="vehicle-detail-label">Year</span>
-                      <span className="vehicle-detail-value">{vehicleInfo.year || 'Not specified'}</span>
-                    </div>
-                    
-                    <div className="vehicle-detail">
-                      <span className="vehicle-detail-label">Color</span>
-                      <span className="vehicle-detail-value">{vehicleInfo.color || 'Not specified'}</span>
-                    </div>
-                    
-                    <div className="vehicle-detail">
-                      <GiSteeringWheel />
-                      <span className="vehicle-detail-label">License Plate</span>
-                      <span className="vehicle-detail-value">{vehicleInfo.licensePlate || 'Not specified'}</span>
-                    </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="Enter your phone number"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Date of Birth</label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Address</label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="Enter your full address"
+                ></textarea>
+              </div>
+              
+              <div className="form-group">
+                <label>Emergency Contact</label>
+                <input
+                  type="text"
+                  name="emergencyContact"
+                  value={formData.emergencyContact}
+                  onChange={handleInputChange}
+                  placeholder="Enter emergency contact number"
+                />
+              </div>
+            </div>
+            
+            <div className="form-section">
+              <h2>Vehicle Information</h2>
+              <div className="vehicle-type-selector">
+                <div 
+                  className={`vehicle-type-option ${formData.vehicle.type === 'motorcycle' ? 'active' : ''}`}
+                  onClick={() => handleVehicleTypeChange('motorcycle')}
+                >
+                  <FaMotorcycle />
+                  <p>Motorcycle</p>
+                </div>
+                
+                <div 
+                  className={`vehicle-type-option ${formData.vehicle.type === 'scooter' ? 'active' : ''}`}
+                  onClick={() => handleVehicleTypeChange('scooter')}
+                >
+                  <FaMotorcycle />
+                  <p>Scooter</p>
+                </div>
+                
+                <div 
+                  className={`vehicle-type-option ${formData.vehicle.type === 'bicycle' ? 'active' : ''}`}
+                  onClick={() => handleVehicleTypeChange('bicycle')}
+                >
+                  <FaBicycle />
+                  <p>Bicycle</p>
+                </div>
+                
+                <div 
+                  className={`vehicle-type-option ${formData.vehicle.type === 'car' ? 'active' : ''}`}
+                  onClick={() => handleVehicleTypeChange('car')}
+                >
+                  <FaCar />
+                  <p>Car</p>
+                </div>
+              </div>
+              
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Make</label>
+                  <input
+                    type="text"
+                    name="vehicle.make"
+                    value={formData.vehicle.make}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Honda"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Model</label>
+                  <input
+                    type="text"
+                    name="vehicle.model"
+                    value={formData.vehicle.model}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Activa"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Year</label>
+                  <input
+                    type="text"
+                    name="vehicle.year"
+                    value={formData.vehicle.year}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 2020"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>License Plate</label>
+                  <input
+                    type="text"
+                    name="vehicle.licensePlate"
+                    value={formData.vehicle.licensePlate}
+                    onChange={handleInputChange}
+                    placeholder="e.g. KA-01-AB-1234"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Color</label>
+                  <input
+                    type="text"
+                    name="vehicle.color"
+                    value={formData.vehicle.color}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Black"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="cancel-btn" 
+                onClick={() => {
+                  setIsEditing(false);
+                  setFormData({...partnerData});
+                }}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="save-btn">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="profile-view">
+            <div className="profile-card">
+              <h2>
+                <FaUser /> Partner Information
+              </h2>
+              <div className="profile-grid">
+                <div className="profile-field">
+                  <span className="field-label">Partner ID</span>
+                  <span className="field-value">{partnerId}</span>
+                </div>
+                
+                <div className="profile-field">
+                  <span className="field-label">Full Name</span>
+                  <span className="field-value">{partnerData.name || partnerName}</span>
+                </div>
+                
+                <div className="profile-field">
+                  <span className="field-label">Email</span>
+                  <span className="field-value">{partnerData.email || 'Not provided'}</span>
+                </div>
+                
+                <div className="profile-field">
+                  <span className="field-label">Phone</span>
+                  <span className="field-value">{partnerData.phone || 'Not provided'}</span>
+                </div>
+                
+                <div className="profile-field">
+                  <span className="field-label">Rating</span>
+                  <span className="field-value">{partnerData.rating} ★</span>
+                </div>
+                
+                <div className="profile-field">
+                  <span className="field-label">Total Deliveries</span>
+                  <span className="field-value">{partnerData.totalDeliveries}</span>
+                </div>
+              </div>
+              
+              {partnerData.address && (
+                <div className="profile-field">
+                  <span className="field-label">Address</span>
+                  <span className="field-value">{partnerData.address}</span>
+                </div>
+              )}
+              
+              {partnerData.emergencyContact && (
+                <div className="profile-field">
+                  <span className="field-label">Emergency Contact</span>
+                  <span className="field-value">{partnerData.emergencyContact}</span>
+                </div>
+              )}
+              
+              {partnerData.dateOfBirth && (
+                <div className="profile-field">
+                  <span className="field-label">Date of Birth</span>
+                  <span className="field-value">{partnerData.dateOfBirth}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="profile-sections">
+              <div className="vehicle-section">
+                <h2>
+                  <FaMotorcycle /> Vehicle Information
+                </h2>
+                <div className="vehicle-info">
+                  <div className="vehicle-detail">
+                    <FaMotorcycle />
+                    <span className="vehicle-detail-label">Type</span>
+                    <span className="vehicle-detail-value">
+                      {partnerData.vehicle?.type?.charAt(0).toUpperCase() + partnerData.vehicle?.type?.slice(1) || 'Not specified'}
+                    </span>
                   </div>
                   
-                  <div className="vehicle-actions">
-                    <button className="update-vehicle-btn" onClick={() => setIsEditingVehicle(true)}>
-                      <FaEdit /> Update Vehicle Information
-                    </button>
+                  <div className="vehicle-detail">
+                    <FaCar />
+                    <span className="vehicle-detail-label">Make & Model</span>
+                    <span className="vehicle-detail-value">
+                      {partnerData.vehicle?.make} {partnerData.vehicle?.model}
+                    </span>
+                  </div>
+                  
+                  <div className="vehicle-detail">
+                    <FaIdCard />
+                    <span className="vehicle-detail-label">License Plate</span>
+                    <span className="vehicle-detail-value">
+                      {partnerData.vehicle?.licensePlate}
+                    </span>
+                  </div>
+                  
+                  <div className="vehicle-detail">
+                    <FaCar />
+                    <span className="vehicle-detail-label">Color</span>
+                    <span className="vehicle-detail-value">
+                      {partnerData.vehicle?.color}
+                    </span>
+                  </div>
+                  
+                  <div className="vehicle-detail">
+                    <FaCalendarAlt />
+                    <span className="vehicle-detail-label">Year</span>
+                    <span className="vehicle-detail-value">
+                      {partnerData.vehicle?.year}
+                    </span>
                   </div>
                 </div>
               </div>
               
-              {/* Documents Section */}
               <div className="documents-section">
-                <h2><FaIdCard /> Documents & Verification</h2>
-                <p>These documents are required for verification purposes. Please upload clear and valid documents.</p>
-                
+                <h2>
+                  <FaFileAlt /> Document Verification
+                </h2>
                 <div className="documents-grid">
-                  {documents.map(doc => (
-                    <div key={doc.id} className="document-card">
-                      <div className={`document-icon ${doc.status === 'pending' ? 'document-pending' : doc.status === 'missing' ? 'document-missing' : ''}`}>
-                        {doc.id === 'driver_license' ? <FaIdCard /> : doc.id === 'vehicle_registration' ? <FaCar /> : <FaFileAlt />}
+                  {partnerData.documents.map(doc => (
+                    <div className="document-card" key={doc.id}>
+                      <div className={`document-icon ${
+                        doc.status === 'verified' ? '' : 
+                        doc.status === 'pending' ? 'document-pending' : 
+                        'document-missing'
+                      }`}>
+                        <FaIdCard />
                       </div>
                       <div className="document-details">
                         <h3>{doc.name}</h3>
-                        
-                        {doc.status !== 'missing' && (
-                          <p>Uploaded: {doc.uploadDate}</p>
-                        )}
-                        
-                        {doc.expiryDate && doc.status !== 'missing' && (
-                          <p>Expires: {doc.expiryDate}</p>
-                        )}
-                        
+                        <p>{doc.uploadedDate ? `Uploaded on ${new Date(doc.uploadedDate).toLocaleDateString()}` : 'Not uploaded'}</p>
                         <div className={`verification-status status-${doc.status}`}>
-                          {getStatusIcon(doc.status)}
-                          <span>
-                            {doc.status === 'verified' ? 'Verified' : 
-                             doc.status === 'pending' ? 'Pending Verification' : 
-                             'Missing Document'}
-                          </span>
-                        </div>
-                        
-                        <div className="document-update">
-                          <button 
-                            className="update-document-btn"
-                            onClick={() => handleDocumentUpload(doc.id)}
-                          >
-                            <FaUpload /> {doc.status === 'missing' ? 'Upload' : 'Update'}
-                          </button>
+                          {doc.status === 'verified' ? (
+                            <>
+                              <FaCheck /> Verified
+                            </>
+                          ) : doc.status === 'pending' ? (
+                            <>
+                              <FaClock /> Pending Verification
+                            </>
+                          ) : (
+                            <>
+                              <FaUpload /> Upload Required
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-                
-                {/* Hidden file input for document uploads */}
-                <input 
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: 'none' }}
-                  onChange={handleFileChange}
-                  accept="image/*,.pdf"
-                />
-                
-                <div className="document-upload" onClick={() => fileInputRef.current.click()}>
-                  <FaUpload />
-                  <h3>Upload Additional Documents</h3>
-                  <p>Click or drop files here to upload</p>
-                  <p className="upload-hint">Supported formats: JPG, PNG, PDF (Max 5MB)</p>
-                </div>
               </div>
             </div>
-          )}
-          
-        </div>
-      </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
