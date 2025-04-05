@@ -3,6 +3,17 @@
   bottom: 20px;
   right: 20px;
   z-index: 1000;
+  display: none; /* Hide by default */
+}
+
+/* Only show the chatbot on the customer dashboard */
+.dashboard-container:not(.delivery-dashboard) .chatbot-container {
+  display: block; /* Show only on customer dashboard */
+}
+
+/* Hide specifically on delivery account pages */
+.delivery-account-container .chatbot-container {
+  display: none;
 }
 
 .chatbot-window {
